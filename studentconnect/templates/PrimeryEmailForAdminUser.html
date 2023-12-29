@@ -1,0 +1,73 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Page Title</title>
+    <link rel="stylesheet" href="{% static '/email.css' %}">
+    <style>
+        body {
+            background-color: #fff;
+            /* Indigo-950 */
+        }
+
+        
+        .card {
+            max-width: 28rem;
+            margin: 0 auto;
+            background-color: #051f55;
+            border-radius: 0.375rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-content {
+            padding: 1.5rem;
+        }
+
+        .card-title {
+            font-weight: bold;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #ffff;
+
+        }
+
+        .card-text {
+            color: #ffff;
+            font-size: 1rem;
+        }
+
+        .card p {
+            margin-top: 1rem;
+            color: #ffff;
+
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-content">
+                <div class="card-title">Congratulations</div>
+                <!-- <p>Dear {{ user_name }},</p> -->
+                <p>Thank you for registering {{ college_name }} with our platform. We have received your registration
+                    request, and we are currently validating the information provided.</p>
+                <p>Please note that your registration is currently pending approval. This process typically takes up to
+                    two business days. Once your request is validated, you will receive a follow-up email containing
+                    your account credentials.</p>
+                <p>In the meantime, if you have any questions or need further assistance, feel free to reply to this
+                    email or contact our support team at {{ support_contact }}.</p>
+                <p>Thank you for choosing {{ platform_name }}!</p>
+                <p>Best Regards,<br>
+                    <!-- {{ company_name }}</p> -->
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
