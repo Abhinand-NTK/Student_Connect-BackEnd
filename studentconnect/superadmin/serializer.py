@@ -53,13 +53,21 @@ class RegisterCollegeSerilzer(serializers.ModelSerializer):
 
 
 class UpdateCollegeSerializer(serializers.ModelSerializer):
+
+    """
+    Serializer class for updating the college details.
+    """
     class Meta:
+        """
+        Meta class for defining the model and fields.
+        """
         model = RegisterCollege
         fields = '__all__'
 
 
 
 class MyTokenSerilizer(TokenObtainPairSerializer):
+    
     """
      Customising the token.
     """

@@ -4,8 +4,6 @@ from rest_framework import  viewsets, status
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.utils.crypto import get_random_string
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from rest_framework.decorators import action
-# from drf_extra_actions.decorators import action
 from rest_framework.response import Response
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
@@ -13,7 +11,6 @@ from django.utils.html import strip_tags
 from django.conf import settings
 from .serializer import RegisterCollegeSerilzer,MyTokenSerilizer,UserDetailsSerilzer,CollegeDetailsSerilizer,UpdateCollegeSerializer
 from .models import RegisterCollege,UserAccount
-
 
 
 class CollegeRegisterViewSet(viewsets.ModelViewSet):
@@ -55,79 +52,11 @@ class CollegeRegisterViewSet(viewsets.ModelViewSet):
     
 
 
-# class CollegeUpdateViewSet(viewsets.ModelViewSet):
-#     queryset = RegisterCollege.objects.all()
-#     permission_classes = [IsAdminUser]
-#     serializer_class = UpdateCollegeSerializer
-
-#     def update(self, request, *args, **kwargs):
-#         college_id = kwargs.get('pk')
-
-#         try:
-#             college = RegisterCollege.objects.get(id=college_id)
-#             print("Before Update - is_active:", college.user_details.is_active)
-            
-
-#             if college.user_details.is_active:
-#                 college.user_details.is_active = False
-#                 college.user_details.save()
-#                 c = RegisterCollege.objects.all()
-#                 serializer = RegisterCollegeSerilzer(c)
-
-#                 print(serializer.data)
-#                 print(college.user_details.is_active)
-
-#                 return Response({ 'data': serializer.data}, status=status.HTTP_200_OK)
-
-#             else:
-#                 college.user_details.is_active = True
-#                 college.user_details.save()
-#                 c = RegisterCollege.objects.all()
-#                 serializer = RegisterCollegeSerilzer(c)
-#                 return Response({ 'data': serializer.data}, status=status.HTTP_200_OK)
-
-
-
-#         except RegisterCollege.DoesNotExist:
-#             return Response({'message': 'College not found.'}, status=status.HTTP_404_NOT_FOUND)
-
-
-# class CollegeUpdateViewSet(viewsets.ModelViewSet):
-#     queryset = RegisterCollege.objects.all()
-#     permission_classes = [IsAdminUser]
-#     serializer_class = UpdateCollegeSerializer
-
-#     def update(self, request, *args, **kwargs):
-#             college_id = kwargs.get('pk')
-
-#         # try:
-#             college = RegisterCollege.objects.get(id=college_id)
-#             print("Before Update - is_active:", college.user_details.is_active)
-
-#             if college.is_activate:
-#                 college.user_details.is_active = False
-#                 college.is_activate = False
-#             else:
-#                 college.user_details.is_active = True
-#                 college.is_activate = True
-
-
-#             college.user_details.save()
-#             college.save()
-
-#             # Fetch all colleges and serialize the entire queryset
-#             all_colleges = RegisterCollege.objects.all()
-#             serializer = UpdateCollegeSerializer(all_colleges, many=True)
-
-#             print(serializer.data)
-#             print(college.user_details.is_active)
-
-#             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
-
-        # except RegisterCollege.DoesNotExist:
-        #     return Response({'message': 'College not found.'}, status=status.HTTP_404_NOT_FOUND)
-
 class CollegeUpdateViewSet(viewsets.ModelViewSet):
+
+    """
+    Class View for Update the College Details
+    """
     queryset = RegisterCollege.objects.all()
     permission_classes = [IsAdminUser]
     serializer_class = UpdateCollegeSerializer
@@ -214,6 +143,7 @@ class CollegeDetails(viewsets.ModelViewSet):
     
 
 class Send_Account_Activation_Mail(viewsets.ModelViewSet):
+    
     """
     viewset for activating the college admin 
     """
