@@ -1,5 +1,6 @@
 from superadmin.models import UserAccount
 from django.db import models
+from superadmin.models import RegisterCollege
 
 
 class CollegeDatabase(models.Model):
@@ -30,6 +31,7 @@ class Department(models.Model):
     """__str__ returns  <type 'str'> """
     
     name = models.CharField(max_length=120)
+    college_name = models.ForeignKey(RegisterCollege,on_delete=models.CASCADE,null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

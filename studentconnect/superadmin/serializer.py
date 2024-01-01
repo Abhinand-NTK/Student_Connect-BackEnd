@@ -16,7 +16,8 @@ class CollegeDetailsSerilizer(serializers.ModelSerializer):
         model = RegisterCollege
         fields = [
             'collegename', 'state', 'email','id',
-            'is_activate', 'verified','Verfication_email_status'
+            'is_activate', 'verified','Verfication_email_status',
+            'user_details'
         ]
 
 
@@ -67,7 +68,7 @@ class UpdateCollegeSerializer(serializers.ModelSerializer):
 
 
 class MyTokenSerilizer(TokenObtainPairSerializer):
-    
+
     """
      Customising the token.
     """
