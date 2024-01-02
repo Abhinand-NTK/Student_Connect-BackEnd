@@ -13,16 +13,19 @@ class DataValidationSerilzier(serializers.ModelSerializer):
         model = None
         fields = '__all__'
 
-        def validation_name(self, value):
-            """Function validation for the name."""
-            if self.Meta.model.objects.filter(name=value).exists():
-                raise serializers.ValidationError('Subject with this name already exists')
-            
+        def validate_name(self, value):
+            """Custom validation for the name field."""
+            if self.instance and self.instance.name == value:
+                return value  # If updating and the name is not changing, no need for further validation
+
+            if Department.objects.filter(name=value, college_name=self.validated_data['college_name']).exists():
+                raise serializers.ValidationError('Department with this name already exists in the college')
+
             if not value.isalpha():
                 raise serializers.ValidationError('Invalid Name, Must contain only alphabet characters')
 
             return value
-        
+            
 class ListViewSerilzer(serializers.ModelSerializer):
     """
     class for sending the list of the department

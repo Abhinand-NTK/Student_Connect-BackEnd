@@ -25,7 +25,7 @@ class AddCourseView(viewsets.ModelViewSet):
             'college_name': college.id
         }
 
-        serilizer = DataValidationSerilzier(data={'name': department_data['name']})
+        serilizer = DataValidationSerilzier(data=department_data)
         serilizer.Meta.model = Department
         if serilizer.is_valid():
             instance = serilizer.save()
@@ -43,8 +43,19 @@ class AddCourseView(viewsets.ModelViewSet):
             return Response(serializer.data,status=status.HTTP_200_OK)
         return Response(serializer.data,status=status.HTTP_400_BAD_REQUEST)
         
-    def list(self, request):  # Fix the typo here
-        queryset = Department.objects.all()
+    def list(self, request,**kwargs):  # Fix the typo 
+        """function for list  the all objects of the departmental model"""
+        user_id = request.GET.get('id', None)
+        print("_------------------------")
+        print("_------------------------")
+        print("_------------------------")
+        print(user_id)
+        print("_------------------------")
+        print("_------------------------")
+        print("_------------------------")
+        college_instance = RegisterCollege.objects.get(user_details=user_id)
+
+        queryset = Department.objects.filter(college_name = college_instance.id)
         serializer = ListViewSerilzer(queryset, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
