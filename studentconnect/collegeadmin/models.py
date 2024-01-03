@@ -30,14 +30,14 @@ class Department(models.Model):
     """
     """__str__ returns  <type 'str'> """
     
-    name = models.CharField(max_length=120)
+    coursename = models.CharField(max_length=120)
     college_name = models.ForeignKey(RegisterCollege,on_delete=models.CASCADE,null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):  
         
-        return self.name
+        return self.coursename
 
 class Subject(models.Model):
     """

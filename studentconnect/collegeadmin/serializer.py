@@ -15,10 +15,10 @@ class DataValidationSerilzier(serializers.ModelSerializer):
 
         def validate_name(self, value):
             """Custom validation for the name field."""
-            if self.instance and self.instance.name == value:
+            if self.instance and self.instance.coursename == value:
                 return value  # If updating and the name is not changing, no need for further validation
 
-            if Department.objects.filter(name=value, college_name=self.validated_data['college_name']).exists():
+            if Department.objects.filter(coursename=value, college_name=self.validated_data['college_name']).exists():
                 raise serializers.ValidationError('Department with this name already exists in the college')
 
             if not value.isalpha():
@@ -36,7 +36,7 @@ class ListViewSerilzer(serializers.ModelSerializer):
         """
         model = Department
         fields = ['id',
-            'name',]
+            'coursename',]
         
 
        

@@ -217,8 +217,6 @@ class Send_Account_Activation_Mail(viewsets.ModelViewSet):
 
 
     
-# def test(request):
 
-#     return render(request,'PrimeryEmailForAdminUser.html')
 
     
