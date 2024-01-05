@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from collegeadmin.models import Department
+from collegeadmin.models import Department,CollegeDatabase,Subject
 
 class DataValidationSerilzier(serializers.ModelSerializer):
     """
@@ -39,6 +39,28 @@ class ListViewSerilzer(serializers.ModelSerializer):
             'coursename',]
         
 
+
+class CrudStaffSerilizer(serializers.ModelSerializer):
+    """
+    class for validating the staff model 
+    """
+    class Meta:
+        """
+        Meta class for the validation 
+        """
+        model = CollegeDatabase
+        fields  = '__all__'
+
+class CrudSubjectSerilizer(serializers.ModelSerializer):
+    """
+    Class for validating the subject model
+    """
+    class Meta:
+        """
+        Meta class for validation
+        """
+        model = Subject
+        fields = '__all__'
        
         
         # def validate_password(self,value):

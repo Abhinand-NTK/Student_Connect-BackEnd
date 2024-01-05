@@ -6,22 +6,21 @@ from superadmin.models import RegisterCollege
 class CollegeDatabase(models.Model):
     """
     Model for Storing the Student and the staff data
+    
     """
-
-    first_name = models.CharField(max_length=150,blank=False)
-    last_name = models.CharField(max_length=150,blank=False)
+    
+    collge_id = models.ForeignKey(RegisterCollege,on_delete=models.CASCADE,null=True)
+    first_name = models.CharField(max_length=150,blank=True,null=True)
+    last_name = models.CharField(max_length=150,blank=True,null=True)
     user_image = models.ImageField(upload_to='profile',blank=True,null=True)
-    age = models.IntegerField(null=False)
-    department = models.CharField(max_length=150,null=False)
-    city = models.CharField(max_length=150)
-    state = models.CharField(max_length=150)
-    zip_code = models.BigIntegerField()
-    address = models.CharField(max_length=300)
-    phone_number = models.CharField(max_length=20)
+    age = models.IntegerField(null=True)
+    city = models.CharField(max_length=150 ,null=True)
+    state = models.CharField(max_length=150,null=True)
+    zip_code = models.BigIntegerField(null=True)
+    address = models.CharField(max_length=300,null=True)
+    phone_number = models.CharField(max_length=20,null=True)
     created = models.DateField(blank=False,null=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-
+    updated_at = models.DateTimeField(auto_now=True,null=True)
 
 
 class Department(models.Model):
@@ -39,6 +38,12 @@ class Department(models.Model):
         
         return self.coursename
 
+class Staff(models.Model):
+    """
+    Modal for adding the staff
+    """
+    staff = models.OneToOneField(CollegeDatabase,on_delete=models.CASCADE)
+
 class Subject(models.Model):
     """
     Model for Creating the Subject
@@ -46,7 +51,7 @@ class Subject(models.Model):
     """__str__ returns  <type 'str'> """
 
     name = models.CharField(max_length=120)
-    staff = models.ForeignKey(UserAccount,on_delete=models.CASCADE,)
+    staff = models.ForeignKey(Staff,on_delete=models.CASCADE,)
     course = models.ForeignKey(Department, on_delete=models.CASCADE)
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -74,11 +79,6 @@ class Attendance(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-class Staff(models.Model):
-    """
-    Modal for adding the staff
-    """
-    staff = models.OneToOneField(CollegeDatabase,on_delete=models.CASCADE)
 
 
 class Student(models.Model):
