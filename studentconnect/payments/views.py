@@ -49,7 +49,7 @@ class StripeCheckoutView(viewsets.ModelViewSet):
                 payment_method_types=['card', ],
                 mode='subscription',  # make it as the payment if the subscription is not working properly
                 currency="inr",
-                success_url='http://localhost:5173/users/landing/',
+                success_url='http://localhost:5173/admin/landing/',
                 cancel_url=f'{settings.SITE_URL}/status' + '?canceled=true',
                 customer=customer.id
             )

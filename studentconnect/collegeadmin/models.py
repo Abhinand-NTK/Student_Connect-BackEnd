@@ -5,7 +5,7 @@ from superadmin.models import RegisterCollege
 
 class CollegeDatabase(models.Model):
     """
-    Model for Storing the Student and the staff data
+    Model for Storing the Student and the staff data    
     
     """
     
@@ -44,6 +44,9 @@ class Staff(models.Model):
     """
     staff = models.OneToOneField(CollegeDatabase,on_delete=models.CASCADE)
 
+    def __str__(self):
+        return f"{self.staff.first_name} {self.staff.last_name}"
+
 class Subject(models.Model):
     """
     Model for Creating the Subject
@@ -61,6 +64,10 @@ class Subject(models.Model):
     
 
 class Session(models.Model):
+    """
+    Class for adding the session in the college
+    """
+    college_id = models.ForeignKey(RegisterCollege,on_delete=models.CASCADE,null=True)
     start_year = models.DateField()
     end_year = models.DateField()
 
@@ -85,5 +92,8 @@ class Student(models.Model):
     """
     Modal for adding the Studnet 
     """
-    staff = models.OneToOneField(CollegeDatabase,on_delete=models.CASCADE)
-    session = models.ForeignKey(Session,on_delete=models.CASCADE)
+    student = models.OneToOneField(CollegeDatabase,on_delete=models.CASCADE,null=True)
+    course = models.ForeignKey(Department,on_delete=models.CASCADE,null=True)
+    session = models.ForeignKey(Session,on_delete=models.CASCADE,null=True)
+    def __str__(self):
+        return f"{self.student.first_name} {self.student.last_name}"

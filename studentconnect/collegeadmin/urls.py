@@ -4,6 +4,8 @@ from rest_framework import routers
 from . import views
 
 college_admin  = routers.DefaultRouter()
+
+
 college_admin .register(r'addcourse', views.CrudCourseView, basename='addcourse')
 college_admin .register(r'editcourse', views.CrudCourseView, basename='editcourse')
 college_admin .register(r'getallcourse', views.CrudCourseView, basename='getallcourse')
@@ -16,6 +18,17 @@ college_admin .register(r'getallstaff', views.CrudStaffView, basename='getallsta
 college_admin .register(r'addsubject', views.CrudSubjectView, basename='addsubject')
 college_admin .register(r'editsubject', views.CrudSubjectView, basename='editsubject')
 college_admin .register(r'listsubject', views.CrudSubjectView, basename='listsubject')
+
+college_admin .register(r'addsession', views.SessionCrudView, basename='addsession')
+college_admin .register(r'editsession', views.SessionCrudView, basename='editsession')
+college_admin .register(r'getsession', views.SessionCrudView, basename='listsession')
+
+
+college_admin .register(r'addstudent', views.StudentCrudView, basename='addstudent')
+college_admin .register(r'getstudent', views.StudentCrudView, basename='getstudent')
+college_admin .register(r'editstudent', views.StudentCrudView, basename='editstudent')
+
+
 
 urlpatterns = [
     path('',include(college_admin .urls))

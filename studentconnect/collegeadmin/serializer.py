@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from collegeadmin.models import Department,CollegeDatabase,Subject
+from collegeadmin.models import Department,CollegeDatabase,Subject,Session,Student
 
 class DataValidationSerilzier(serializers.ModelSerializer):
     """
@@ -61,20 +61,39 @@ class CrudSubjectSerilizer(serializers.ModelSerializer):
         """
         model = Subject
         fields = '__all__'
-       
-        
-        # def validate_password(self,value):
-        #     """Function validation for the password."""
-        #     if len(value) < 8:
-        #         raise serializers.ValidationError('The Password should be atleast 8 characters')
-        #     return value
-        # ALLOWED_EMAIL_DOMAINS = ['gmail.com', 'yahoo.com', 'outlook.com', 'example.com']
-        # def validate_email(self,value):
-        #     """Function validtaging the mail."""
-        #     if not any(value.endswith(domain) for domain in self.ALLOWED_EMAIL_DOMAINS):
-        #         raise serializers.ValidationError('Invalid email Address ,Must be with valid Domain')
-        #     return value
-        # def validate_number(self,value):
-        #     """Function validatiang the No."""
-        #     if not value.isdigit():
-        #         raise serializers.ValidationError('Invalid No,The field should have to contain a number')
+
+class CrudSessionSerilzer(serializers.ModelSerializer):
+    """
+    Class for validating the subject model
+    """
+    class Meta:
+        """
+        Meta Calss for valdation
+        """
+        model = Session
+        fields = '__all__'
+
+class StudentCrudSerilizer(serializers.ModelSerializer):
+    """
+    class for validating the student model
+    """
+
+    class Meta:
+        model = Student
+        fields ='__all__'
+
+class DepartmentSerializer(serializers.ModelSerializer):
+    """
+    class for validating the department modal
+    """
+    class Meta:
+        model = Department
+        fields = '__all__'
+            
+class StudentWithDetailsSerializer(serializers.ModelSerializer):
+    student_details = CrudStaffSerilizer(source='student', read_only=True)
+    course_details = DepartmentSerializer(source='course', read_only=True)
+    session_details = CrudSessionSerilzer(source='session', read_only=True)
+    class Meta:
+        model = Student
+        fields = ['course_details', 'session_details', 'student_details']
