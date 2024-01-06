@@ -1,48 +1,60 @@
 from superadmin.models import UserAccount
 from django.db import models
+from superadmin.models import RegisterCollege
 
 
 class CollegeDatabase(models.Model):
     """
-    Model for Storing the collge detailsc
+    Model for Storing the Student and the staff data    
+    
     """
-
-    first_name = models.CharField(max_length=150,blank=False)
-    last_name = models.CharField(max_length=150,blank=False)
+    
+    collge_id = models.ForeignKey(RegisterCollege,on_delete=models.CASCADE,null=True)
+    first_name = models.CharField(max_length=150,blank=True,null=True)
+    last_name = models.CharField(max_length=150,blank=True,null=True)
     user_image = models.ImageField(upload_to='profile',blank=True,null=True)
-    age = models.IntegerField(null=False)
-    department = models.CharField(max_length=150,null=False)
-    register_no = models.IntegerField(null=False)
-    start_date = models.DateTimeField()
-    end_date = models.DateTimeField()
-    city = models.CharField(max_length=150)
-    state = models.CharField(max_length=150)
-    zip_code = models.BigIntegerField()
-    address = models.CharField(max_length=300)
-    phone_number = models.CharField(max_length=20)
+    age = models.IntegerField(null=True)
+    city = models.CharField(max_length=150 ,null=True)
+    state = models.CharField(max_length=150,null=True)
+    zip_code = models.BigIntegerField(null=True)
+    address = models.CharField(max_length=300,null=True)
+    phone_number = models.CharField(max_length=20,null=True)
     created = models.DateField(blank=False,null=True)
-
-
+    updated_at = models.DateTimeField(auto_now=True,null=True)
 
 
 class Department(models.Model):
     """
     Model for Creating the department
     """
+    """__str__ returns  <type 'str'> """
     
-    name = models.CharField(max_length=120)
+    coursename = models.CharField(max_length=120)
+    college_name = models.ForeignKey(RegisterCollege,on_delete=models.CASCADE,null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):  
-        return self.name
+        
+        return self.coursename
+
+class Staff(models.Model):
+    """
+    Modal for adding the staff
+    """
+    staff = models.OneToOneField(CollegeDatabase,on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.staff.first_name} {self.staff.last_name}"
 
 class Subject(models.Model):
     """
     Model for Creating the Subject
     """
+    """__str__ returns  <type 'str'> """
+
     name = models.CharField(max_length=120)
-    staff = models.ForeignKey(UserAccount,on_delete=models.CASCADE,)
+    staff = models.ForeignKey(Staff,on_delete=models.CASCADE,)
     course = models.ForeignKey(Department, on_delete=models.CASCADE)
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -52,6 +64,10 @@ class Subject(models.Model):
     
 
 class Session(models.Model):
+    """
+    Class for adding the session in the college
+    """
+    college_id = models.ForeignKey(RegisterCollege,on_delete=models.CASCADE,null=True)
     start_year = models.DateField()
     end_year = models.DateField()
 
@@ -69,3 +85,15 @@ class Attendance(models.Model):
     date = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+
+class Student(models.Model):
+    """
+    Modal for adding the Studnet 
+    """
+    student = models.OneToOneField(CollegeDatabase,on_delete=models.CASCADE,null=True)
+    course = models.ForeignKey(Department,on_delete=models.CASCADE,null=True)
+    session = models.ForeignKey(Session,on_delete=models.CASCADE,null=True)
+    def __str__(self):
+        return f"{self.student.first_name} {self.student.last_name}"

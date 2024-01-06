@@ -16,7 +16,8 @@ class CollegeDetailsSerilizer(serializers.ModelSerializer):
         model = RegisterCollege
         fields = [
             'collegename', 'state', 'email','id',
-            'is_activate', 'verified','Verfication_email_status'
+            'is_activate', 'verified','Verfication_email_status',
+            'user_details'
         ]
 
 
@@ -53,13 +54,21 @@ class RegisterCollegeSerilzer(serializers.ModelSerializer):
 
 
 class UpdateCollegeSerializer(serializers.ModelSerializer):
+
+    """
+    Serializer class for updating the college details.
+    """
     class Meta:
+        """
+        Meta class for defining the model and fields.
+        """
         model = RegisterCollege
         fields = '__all__'
 
 
 
 class MyTokenSerilizer(TokenObtainPairSerializer):
+
     """
      Customising the token.
     """
