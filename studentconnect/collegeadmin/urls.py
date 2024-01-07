@@ -29,6 +29,9 @@ college_admin .register(r'getstudent', views.StudentCrudView, basename='getstude
 college_admin .register(r'editstudent', views.StudentCrudView, basename='editstudent')
 
 
+college_admin .register(r'createAccounforuser', views.CreatingUsersView, basename='createAccounforuser')
+
+
 
 urlpatterns = [
     path('',include(college_admin .urls))
