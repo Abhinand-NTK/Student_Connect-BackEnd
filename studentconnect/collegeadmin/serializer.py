@@ -62,6 +62,17 @@ class CrudSubjectSerilizer(serializers.ModelSerializer):
         model = Subject
         fields = '__all__'
 
+class SubjectDetailSerializer(serializers.ModelSerializer):
+    """
+    class for serilize the subject
+    """
+    staff_name = serializers.CharField(source='staff.staff.first_name', read_only=True)
+    course_name = serializers.CharField(source='course.coursename', read_only=True)
+
+    class Meta:
+        model = Subject
+        fields = ['id', 'name', 'staff','semseter','staff_name', 'course', 'course_name', 'updated_at', 'created_at']
+
 class CrudSessionSerilzer(serializers.ModelSerializer):
     """
     Class for validating the subject model

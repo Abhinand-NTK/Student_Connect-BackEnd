@@ -138,7 +138,12 @@ class CrudSubjectView(viewsets.ModelViewSet):
         """Function for edit the subject"""
         serilizer = CrudSubjectSerilizer(data=request.data)
         id = request.data['edit']
+        college_instance = CollegeDatabase.objects.get(
+            id=request.data.get('staff'))
+        data = request.data
+        data.update({'staff':  college_instance.staff.id})
         instance = Subject.objects.get(id=id)
+        print(instance)
         serializer = CrudSubjectSerilizer(
             instance, data=request.data, partial=True)
         if serializer.is_valid():
@@ -154,7 +159,7 @@ class CrudSubjectView(viewsets.ModelViewSet):
 
         queryset = Subject.objects.filter(
             course__college_name=college_instance.id)
-        serializer = CrudSubjectSerilizer(queryset, many=True)
+        serializer = SubjectDetailSerializer(queryset, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
