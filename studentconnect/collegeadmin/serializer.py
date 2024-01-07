@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from collegeadmin.models import Department,CollegeDatabase,Subject,Session,Student
+from collegeadmin.models import Department,CollegeDatabase,Subject,Session,Student,Staff
 
 class DataValidationSerilzier(serializers.ModelSerializer):
     """
@@ -97,3 +97,9 @@ class StudentWithDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
         fields = ['course_details', 'session_details', 'student_details']
+
+class StaffWithDetailsSerializer(serializers.ModelSerializer):
+    staff_details = CrudStaffSerilizer(source='staff', read_only=True)
+    class Meta:
+        model = Staff
+        fields = ['staff_details']
