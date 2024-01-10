@@ -102,15 +102,18 @@ class DepartmentSerializer(serializers.ModelSerializer):
         fields = '__all__'
             
 class StudentWithDetailsSerializer(serializers.ModelSerializer):
+    """
+    Class for serilize and combine the data for the student complete details
+    """
     student_details = CrudStaffSerilizer(source='student', read_only=True)
     course_details = DepartmentSerializer(source='course', read_only=True)
     session_details = CrudSessionSerilzer(source='session', read_only=True)
     class Meta:
         model = Student
-        fields = ['course_details', 'session_details', 'student_details']
+        fields = ['course_details', 'session_details', 'student_details','semester']
 
 class StaffWithDetailsSerializer(serializers.ModelSerializer):
     staff_details = CrudStaffSerilizer(source='staff', read_only=True)
     class Meta:
         model = Staff
-        fields = ['staff_details']
+        fields = ['staff_details','is_hod']

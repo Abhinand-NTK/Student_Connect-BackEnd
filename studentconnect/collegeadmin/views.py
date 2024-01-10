@@ -19,7 +19,7 @@ class CrudCourseView(viewsets.ModelViewSet):
     View For Adding The Course in The College 
     """
     queryset = Department.objects.all()
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = DataValidationSerilzier
 
     def create(self, request):
@@ -83,7 +83,13 @@ class CrudStaffView(viewsets.ModelViewSet):
             data=request.data)
         if serilizer.is_valid():
             instance = serilizer.save()
-            instance_staff = Staff.objects.create(staff=instance)
+            data = False
+            if request.data['role'] == 'head':
+                data = True
+            instance_staff = Staff.objects.create(
+                staff=instance,
+                is_hod=data
+            )
             instance_staff.save()
             return Response(serilizer.data, status=status.HTTP_201_CREATED)
         return Response(serilizer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -232,6 +238,7 @@ class StudentCrudView(viewsets.ModelViewSet):
                 student=instance,
                 course=course_id,
                 session=session_id,
+                semester=request.data['semester']
             )
             return Response(serilizer.data, status=status.HTTP_201_CREATED)
         return Response(serilizer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -243,8 +250,22 @@ class StudentCrudView(viewsets.ModelViewSet):
         instance = CollegeDatabase.objects.get(id=id)
         serializer = CrudStaffSerilizer(
             instance, data=request.data, partial=True)
+        course_id = Department.objects.get(id=request.data['course'])
+        session_id = Session.objects.get(id=request.data['session'])
+
+        print(course_id)
+        print(session_id)
+        print(request.data['semester'])
         if serializer.is_valid():
             self.perform_update(serializer)
+            instance_student = Student.objects.get(
+                student=instance,
+            )
+            print(instance_student.course.id)
+            instance_student.course = course_id
+            instance_student.session = session_id
+            instance_student.semester = request.data['semester']
+            instance_student.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         # return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
 
@@ -268,123 +289,17 @@ class CreatingUsersView(viewsets.ModelViewSet):
     queryset = UserAccount.objects.all()
     # permission_classes = [IsAuthenticated]
     serializer_class = UserDetailsSerilzer
-
- 
-
-    # def create(self, request, *args, **kwargs):
-
-    #     print("The data is this>>>>>>>>>>",request.data)
-
-    #     try:
-    #         user_details = Student.objects.get(student__id=request.data['edit'])
-    #     except ObjectDoesNotExist:
-
-    #         pass
-
-    #     if not user_details.student.email_sent:
-
-    #         print(user_details.student.email)
-
-    #         user = UserAccount.objects.create(
-    #             first_name=user_details.student.first_name,
-    #             last_name=user_details.student.last_name,
-    #             email=user_details.student.email,
-    #             user_type=3,
-    #         )
-    #         user.save()
-
-    #         password = get_random_string(length=8)
-    #         user.set_password(password)
-    #         user.save()
-
-    #         print(password)
-    #         user_details.student.email_sent = True
-    #         user_details.student.primary_password = password
-    #         user_details.student.save()
-
-
-    #         # Sending the confirmation mail while creating the account by super admin
-    #         login_link = f'http://localhost:5173/signin'
-    #         subject = 'College Registration Request Received'
-    #         template_path = 'StudentAccountCreateSuccessMail.html'
-    #         context = {
-    #             'student_name': user.first_name,
-    #             'student_username': user.email,
-    #             # 'college_name': user_details.staff.collge_id.collegename,
-    #             'student_password': user_details.student.collge_id.primary_password,
-    #             'student_login_link': login_link,
-    #             'support_contact': '[Your Support Email or Phone Number]',
-    #             'platform_name': '[Your Platform Name]',
-    #             'company_name': '[Your Company/Organization Name]',
-    #         }
-    #         html_message = render_to_string(template_path, context)
-    #         plain_message = strip_tags(html_message)
-
-    #         send_mail(
-    #             subject,
-    #             plain_message,
-    #             settings.DEFAULT_FROM_EMAIL,
-    #             [user.email],
-    #             html_message=html_message,
-    #         )
-
-    #         return Response({'message': 'Activation email sent successfully.'}, status=status.HTTP_200_OK)
-        
-
-    #     else:
-    #         user_details = Staff.objects.get(staff__id=request.data['id'])
-    #         user = UserAccount.objects.create(
-    #             first_name=user_details.staff.first_name,
-    #             last_name=user_details.staff.last_name,
-    #             email=user_details.staff.email,
-    #             user_type=2,
-    #         )
-
-    #         user_details.staff.primary_password = password
-    #         user_details.staff.email_sent = True
-    #         user_details.save()
-
-    #         password = get_random_string(length=8)
-    #         user.set_password(password)
-    #         user.save()
-
-    #         # Sending the confirmation mail while creating the account by super admin
-    #         login_link = f'http://localhost:5173/signin'
-    #         subject = 'College Registration Request Received'
-    #         template_path = 'StaffAccountCreateSuccessMail.html'
-    #         context = {
-    #             'staff_name': user.first_name,
-    #             'new_staff_username': user.email,
-    #             # 'college_name': user_details.staff.collge_id.collegename,
-    #             'new_staff_password': user_details.staff.collge_id.primary_password,
-    #             'student_login_link': login_link,
-    #             'support_contact': '[Your Support Email or Phone Number]',
-    #             'platform_name': '[Your Platform Name]',
-    #             'company_name': '[Your Company/Organization Name]',
-    #         }
-    #         html_message = render_to_string(template_path, context)
-    #         plain_message = strip_tags(html_message)
-
-    #         send_mail(
-    #             subject,
-    #             plain_message,
-    #             settings.DEFAULT_FROM_EMAIL,
-    #             [user.email],
-    #             html_message=html_message,
-    #         )
-            
-
-    #         user.save()
-    #         return Response({'message': 'Activation email sent successfully.'}, status=status.HTTP_200_OK)
     def create(self, request, *args, **kwargs):
         print("The data is this>>>>>>>>>>", request.data)
 
         try:
-            user_details = Student.objects.get(student__id=request.data.get('edit'))
+            user_details = Student.objects.get(
+                student__id=request.data.get('edit'))
         except ObjectDoesNotExist:
             # If student account doesn't exist, create a staff account
             try:
-                user_details = Staff.objects.get(staff__id=request.data.get('edit'))
+                user_details = Staff.objects.get(
+                    staff__id=request.data.get('edit'))
             except ObjectDoesNotExist:
                 return Response({'message': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -398,14 +313,18 @@ class CreatingUsersView(viewsets.ModelViewSet):
                 email=user_details.staff.email,
                 user_type=2,
             )
+            
 
             password = get_random_string(length=8)
             user.set_password(password)
             user.save()
 
+            #saving the primery password into the userdetails field
+            user_details.user_id = user
             user_details.staff.primary_password = password
             user_details.staff.email_sent = True
             user_details.staff.save()
+            user_details.save()
 
             # Sending the confirmation mail while creating the account by super admin
             login_link = 'http://localhost:5173/signin'  # Change as needed
@@ -441,9 +360,11 @@ class CreatingUsersView(viewsets.ModelViewSet):
             user.save()
 
             print(password)
+            user_details.user_id = user
             user_details.student.email_sent = True
             user_details.student.primary_password = password
             user_details.student.save()
+            user_details.save()
 
             # Sending the confirmation mail while creating the account by super admin
             login_link = 'http://localhost:5173/signin'  # Change as needed
