@@ -19,12 +19,6 @@ class ClassRoom(models.Model):
         null=True
     )
 
-    def set_students_array(self, integers):
-        self.subject_ids = ','.join(map(str, integers))
-
-    def get_students_array(self):
-        return list(map(int, filter(None, self.students_ids.split(','))))
-
 
     subject_ids = models.CharField(
         max_length=255,
@@ -34,9 +28,15 @@ class ClassRoom(models.Model):
     )
 
     def set_students_array(self, integers):
-        self.subject_ids = ','.join(map(str, integers))
+        self.students_ids = ','.join(map(str, integers))
 
     def get_students_array(self):
+        return list(map(int, filter(None, self.students_ids.split(','))))
+
+    def set_subjects_array(self, integers):
+        self.subject_ids = ','.join(map(str, integers))
+
+    def get_subjects_array(self):
         return list(map(int, filter(None, self.subject_ids.split(','))))
     
     def __str__(self):
