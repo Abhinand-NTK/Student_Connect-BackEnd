@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'superadmin',
     'collegeadmin',
     'payments',
+    'staffuser',
     'rest_framework',
     "corsheaders",
     "rest_framework_simplejwt.token_blacklist",
@@ -181,7 +182,7 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_THROTTLE_RATES': {
         
-        'login': '2/day'
+        'login': '100/day'
     },
     
 }

@@ -1,6 +1,7 @@
 from superadmin.models import UserAccount
 from django.db import models
-from superadmin.models import RegisterCollege
+from superadmin.models import RegisterCollege,UserAccount
+
 
 
 class CollegeDatabase(models.Model):
@@ -47,7 +48,9 @@ class Staff(models.Model):
     """
     Modal for adding the staff
     """
+    user_id = models.ForeignKey(UserAccount,on_delete=models.CASCADE,null=True)
     staff = models.OneToOneField(CollegeDatabase,on_delete=models.CASCADE)
+    is_hod = models.BooleanField(null=True,blank=True,default=False)
 
     def __str__(self):
         return f"{self.staff.first_name} {self.staff.last_name}"
@@ -98,8 +101,10 @@ class Student(models.Model):
     """
     Modal for adding the Studnet 
     """
+    user_id = models.ForeignKey(UserAccount,on_delete=models.CASCADE,null=True)
     student = models.OneToOneField(CollegeDatabase,on_delete=models.CASCADE,null=True)
     course = models.ForeignKey(Department,on_delete=models.CASCADE,null=True)
     session = models.ForeignKey(Session,on_delete=models.CASCADE,null=True)
+    semester = models.CharField(null=True,blank=True)
     def __str__(self):
         return f"{self.student.first_name} {self.student.last_name}"

@@ -21,6 +21,7 @@ class CollegeDetailsSerilizer(serializers.ModelSerializer):
         ]
 
 
+
 class UserDetailsSerilzer(serializers.ModelSerializer):
     """
     Serializer for Get The details of the user.
