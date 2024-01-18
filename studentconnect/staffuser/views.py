@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from collegeadmin.serializer import StudentCrudSerilizer, StudentWithDetailsSerializer, CrudSubjectSerilizer
 from collegeadmin.serializer import DataValidationSerilzier, ListViewSerilzer
-from .serializer import ClassRoomSerilizer, ClassRoomSerializerWithAllData
+from .serializer import ClassRoomForTeacherSerializerGet,ClassRoomForTeacherSerializer,ClassRoomSerilizer, ClassRoomSerializerWithAllData,StaffUserProfileSerilizer,ClassRoomSerilizerGet
 from collegeadmin.models import Staff, Student, Subject,CollegeDatabase
 from .models import *
 # Create your views here.
@@ -15,7 +15,7 @@ class CrudForClassRoom(viewsets.ModelViewSet):
     class for the crud operation for the classroom
     """
     queryset = ClassRoom.objects.all()
-    # permission_classes =[IsAuthenticated]
+    permission_classes =[IsAuthenticated]
     serializer_class = ClassRoomSerilizer
 
     
@@ -25,7 +25,7 @@ class CrudForClassRoom(viewsets.ModelViewSet):
 
         college_id = Staff.objects.get(
             user_id=request.GET.get('id', None)).staff.collge_id.id
-
+      
         try:
             subjects = Subject.objects.filter(
                 course=request.data.get('course_id'))
@@ -62,7 +62,7 @@ class GetCourse(viewsets.ModelViewSet):
     """
 
     queryset = Department.objects.all()
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = DataValidationSerilzier
 
     def list(self, request, **kwargs):
@@ -132,6 +132,9 @@ class GetClassRooms(viewsets.ModelViewSet):
         serializer = self.get_serializer(data, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
+ 
+        
+    
 
 class GetClassRoom(viewsets.ModelViewSet):
     """
@@ -174,3 +177,112 @@ class GetClassRoom(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(data, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class StaffUserProfileCrudView(viewsets.ModelViewSet):
+    """
+    Class for Crud the user data
+    """
+    queryset = Staff.objects.all()
+    # permission_classes = [IsAuthenticated]
+    serializer_class = StaffUserProfileSerilizer
+    def retrieve(self, request, *args, **kwargs):
+        """Function for get the list of the staff users in the database of the specific colleges"""
+        user_id = self.kwargs.get('pk')
+        queryset = Staff.objects.get(user_id=user_id)
+        serilizer = self.get_serializer(queryset)
+
+        return Response(serilizer.data,status=status.HTTP_200_OK)
+
+
+class GetPro(viewsets.ModelViewSet):
+    """
+    Class 
+    """
+    queryset = ClassRoom.objects.all()
+    serializer_class = ClassRoomSerilizer
+    def list(self, request, *args, **kwargs):
+        """function for get the details of the individual teacher"""
+        values_str = request.GET.get('sub_ids', '')
+        result_dict = {}
+
+
+        classrooms_with_subjects = ClassRoom.objects.filter(subject_ids__contains=values_str)
+        for classroom in classrooms_with_subjects:
+            sub_array = classroom.get_subjects_array()
+            subjects = Subject.objects.filter(id__in=sub_array)
+            serialized_subjects = CrudSubjectSerilizer(subjects, many=True).data
+            result_dict[classroom.name] = {'Subjects': serialized_subjects}
+
+        serializer_2 = ClassRoomSerilizerGet(classrooms_with_subjects,many=True)
+        # serializer = self.get_serializer(classrooms_with_subjects, many=True)
+
+
+        data = {
+            "data1":serializer_2.data,
+            "data2":result_dict,
+        }
+        return Response(data,status=status.HTTP_200_OK)
+
+class ClassRoomAssignCrudView(viewsets.ModelViewSet):
+    """
+    Class for Crud the Classroom Allocation of Teachers
+    """
+    queryset = ClassRoomForTeacher.objects.all()
+    serializer_class = ClassRoomForTeacherSerializer
+    permission_classes =[IsAuthenticated]
+
+
+    def list(self, request, *args, **kwargs):
+        """"
+        Get function for the class view
+        """
+        id = request.GET.get('id', None)
+
+        values_str = request.GET.get('sub_idss', '')
+
+        classrooms_with_subjects = ClassRoom.objects.filter(subject_ids__contains=values_str)
+        classroom_for_teacher_objects = ClassRoomForTeacher.objects.filter(class_id__in=classrooms_with_subjects)
+        classroom_dict1 = {classroom.class_id.name: classroom.id for classroom in classroom_for_teacher_objects}
+
+        classroom_dict = {}
+    
+        for classroom in classroom_for_teacher_objects:
+            subject_name = classroom.sub_id.name
+            print(classroom.sub_id.name,"--------->>>>>>>.")
+            class_name = classroom.class_id.name
+            classroom_id = classroom.id
+            
+            if subject_name not in classroom_dict:
+                classroom_dict[subject_name] = {}   
+            
+            classroom_dict[subject_name][class_name] = classroom_id
+
+
+        serializer = ClassRoomForTeacherSerializerGet(classroom_for_teacher_objects,many=True)
+        return Response(classroom_dict,status=status.HTTP_200_OK)
+            
+
+class GetViewForClassRoomForTeacher(viewsets.ModelViewSet):
+    """
+    Class for the ClassRoomForTeacher Model
+    """
+    queryset = ClassRoomForTeacher.objects.all()
+    serializer_class = ClassRoomForTeacherSerializer
+    # permission_classes = [IsAuthenticated]
+
+    def retrieve(self, request, *args, **kwargs):
+        """
+        Retrive the objects of the class for a particular user
+        """
+        user_id=self.kwargs.get('pk')
+        # staff = Staff.objects.get(id=user_id)
+        data = self.queryset.filter(staff_id=user_id)
+        for i in data:
+            subjects_idss = i.class_id.get_students()
+            # print(subjects_ids)
+            print(subjects_idss)
+        
+        serializer = self.serializer_class(data,many=True)
+        
+
+        return Response(serializer.data,status=status.HTTP_200_OK)

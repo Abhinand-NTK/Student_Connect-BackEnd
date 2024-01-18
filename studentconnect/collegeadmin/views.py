@@ -3,9 +3,9 @@ from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from superadmin.models import RegisterCollege, UserAccount
+from django.core.mail import send_mail
 from .models import CollegeDatabase
 from django.conf import settings
-from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from .models import Department, Staff, Subject, Session, Student
@@ -116,6 +116,24 @@ class CrudStaffView(viewsets.ModelViewSet):
         data = serializer.data  # Get serialized data
         # Return a Response instance
         return Response(data, status=status.HTTP_200_OK)
+    
+    def retrieve(self, request, *args, **kwargs):
+        """
+        Funtion for getting the individual user details
+        """
+        id = self.kwargs.get('pk')
+        data = self.queryset.get(id = id)
+        serializer = self.serializer_class(data)
+        qureyset_2 = Subject.objects.filter(staff__staff_id = id)
+        serializer_2 = SubjectDetailSerializer(qureyset_2,many=True)
+        
+        data = {
+            'staff_details':serializer.data,
+            'subject':serializer_2.data
+        }
+        return Response(data,status=status.HTTP_200_OK)
+
+
 
 
 class CrudSubjectView(viewsets.ModelViewSet):
@@ -168,7 +186,12 @@ class CrudSubjectView(viewsets.ModelViewSet):
         serializer = SubjectDetailSerializer(queryset, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def retrieve(self, request, *args, **kwargs):
+        """ fuction for filter the subjects according to the Hod"""
 
+        user_id = self.kwargs.get('pk')
+        # subjects =
 
 class SessionCrudView(viewsets.ModelViewSet):
     """
@@ -253,9 +276,7 @@ class StudentCrudView(viewsets.ModelViewSet):
         course_id = Department.objects.get(id=request.data['course'])
         session_id = Session.objects.get(id=request.data['session'])
 
-        print(course_id)
-        print(session_id)
-        print(request.data['semester'])
+        
         if serializer.is_valid():
             self.perform_update(serializer)
             instance_student = Student.objects.get(
