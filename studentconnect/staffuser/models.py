@@ -64,8 +64,8 @@ class ClassRoom(models.Model):
         """
         Returns a queryset of students associated with this classroom.
         """
-        subject_ids = self.get_students_array()
-        return CollegeDatabase.objects.filter(id__in=subject_ids)
+        students_ids = self.get_students_array()
+        return CollegeDatabase.objects.filter(id__in=students_ids)
     
     def __str__(self):
         return f"{self.name}"

@@ -27,6 +27,7 @@ class ClassRoomSerilizerGet(ModelSerializer):
 
 
 class ClassRoomSerializerWithAllData(ModelSerializer):
+    """"""
     students = CrudStaffSerilizer(many=True, read_only=True)
     staffs_data = CrudStaffSerilizer(many=True, read_only=True)
     subjects = CrudSubjectSerilizer(many=True, read_only=True)

@@ -436,5 +436,3 @@ class CreatingUsersView(viewsets.ModelViewSet):
         )
 
         return Response({'message': 'Activation email sent successfully.'}, status=status.HTTP_200_OK)
-
-
