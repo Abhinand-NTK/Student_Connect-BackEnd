@@ -83,7 +83,7 @@ class ClassRoomForTeacher(models.Model):
     #     return
 class ModulesForClassRoomForTeacher(models.Model):
     """
-    Class for making modules for the classroom
+    Class for making modules for a classroom
     """
     class_room_staff_id = models.ForeignKey(ClassRoomForTeacher,on_delete=models.CASCADE,null=True)
     assignment_url = models.CharField(max_length=500,null=True)
@@ -100,5 +100,3 @@ class AttendanInClassroom(models.Model):
 
     def __str__(self):
         return f"{self.student_id} - {self.date} - {self.attendance_status}"
-
-        

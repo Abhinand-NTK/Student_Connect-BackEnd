@@ -132,8 +132,32 @@ class CrudStaffView(viewsets.ModelViewSet):
             'subject':serializer_2.data
         }
         return Response(data,status=status.HTTP_200_OK)
+class BlockStaff(viewsets.ModelViewSet):
+    """
+    Class for Blcok the Indivudal users
+    """
+    queryset = UserAccount.objects.all()
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserDetailsSerilzer
 
+    def partial_update(self, request, *args, **kwargs):
+        """
+        Funtion for updating the instance
+        """
+        college_database_id = self.kwargs.get('pk')
 
+        try:
+            college_database = CollegeDatabase.objects.get(id=college_database_id)
+            user_instance = UserAccount.objects.get(email=college_database.email)
+
+            user_instance.is_active = not user_instance.is_active
+            user_instance.save()
+
+            return Response({'status': 'User status toggled successfully'}, status=status.HTTP_200_OK)
+        except CollegeDatabase.DoesNotExist:
+            return Response({'error': 'CollegeDatabase not found'}, status=status.HTTP_404_NOT_FOUND)
+        except UserAccount.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
 class CrudSubjectView(viewsets.ModelViewSet):

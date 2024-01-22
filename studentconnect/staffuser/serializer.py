@@ -1,6 +1,6 @@
 from rest_framework.serializers import ModelSerializer
-from .models import ClassRoom, ClassRoomForTeacher
-from collegeadmin.models import CollegeDatabase, Staff,Subject
+from .models import ClassRoom, ClassRoomForTeacher,AttendanInClassroom,ModulesForClassRoomForTeacher
+from collegeadmin.models import CollegeDatabase, Staff,Subject,Student
 from collegeadmin.serializer import CrudStaffSerilizer, CrudSubjectSerilizer, DepartmentSerializer
 from rest_framework import serializers
 
@@ -51,6 +51,19 @@ class StaffUserProfileSerilizer(ModelSerializer):
         depth = 2
         fields = '__all__'
 
+class StudentUsersProfileSerilizer(ModelSerializer):
+    """
+    class for serilizer the data of the staff model and the related modal
+    """
+
+    class Meta:
+        """
+        Meta class for specify the modal and the fields
+        """
+        model = Student
+        depth = 2
+        fields = '__all__'
+
 
 class ClassRoomForTeacherSerializer(ModelSerializer):
     """
@@ -68,16 +81,6 @@ class ClassRoomForTeacherSerializer(ModelSerializer):
         request = self.context.get('request')
         user_id = request.GET.get('id') 
         staff_id=Staff.objects.get(staff_id=user_id)
-        print('-------------------------------------')
-        print('-------------------------------------')
-        print('-------------------------------------')
-        print(user_id)
-        print('-------------------------------------')
-        print('-------------------------------------')
-        print('-------------------------------------')
-
-
-       
         # Subject.objects.filter(staff_id = staff_id)
 
         matching_subjects = Subject.objects.filter(staff_id=staff_id, id=sub_id.id)
@@ -95,16 +98,7 @@ class ClassRoomForTeacherSerializer(ModelSerializer):
         try:
             
             if(sub_id == Subject.objects.get(id=sub_id.id, staff_id=staff_id)):
-                print('-------------------------------------')
-                print('-------------------------------------')
-
-                print("The orgingal validation processs")
-                print('-------------------------------------')
-                print('-------------------------------------')
-            subject = Subject.objects.get(id=sub_id.id, staff_id=staff_id)
-
-            print(subject)
-            print(sub_id)
+                subject = Subject.objects.get(id=sub_id.id, staff_id=staff_id)
            
         except Subject.DoesNotExist:
             raise serializers.ValidationError("The staff is not registered for this subject.")
@@ -131,7 +125,7 @@ class ClassRoomForTeacherSerializerGet(ModelSerializer):
         fields ='__all__'
 
 
-class ClassRoomForTeacherSerializer(ModelSerializer):
+class ClassRoomForTeacherSerializers(ModelSerializer):
     """
     Serializer class for the Classroom teachers model
     """
@@ -156,3 +150,31 @@ class ClassRoomForTeacherSerializer(ModelSerializer):
         student_data = [{'id': student.id, 'first_name': student.first_name,'last_name': student.last_name} for student in students]
 
         return {'students': student_data}
+    
+class SerilizerForAttendenceManagement(ModelSerializer):
+    """
+    Serializer for serilize the attendence data
+    """
+    first_name = serializers.CharField(source='student_id.student.first_name', read_only=True)
+    last_name = serializers.CharField(source='student_id.student.last_name', read_only=True)
+    id = serializers.CharField(source='student_id.student.id', read_only=True)
+
+    class Meta:
+        model = AttendanInClassroom
+        fields = ['class_room_for_staff_id', 'student_id','id', 'date', 'attendance_status', 'first_name', 'last_name']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        # Add any additional customization to the representation if needed
+        return representation
+    
+class SerilierClassforModulesForClassRoomForTeacher(ModelSerializer):
+    """
+    Serilazer for ModulesForClassRoomForTeacher model
+    """
+    class Meta:
+        """
+        Meta class
+        """
+        model = ModulesForClassRoomForTeacher
+        fields = '__all__'
