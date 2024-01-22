@@ -13,6 +13,7 @@ college_admin .register(r'getallcourse', views.CrudCourseView, basename='getallc
 college_admin .register(r'addstaff', views.CrudStaffView, basename='addstaff')
 college_admin .register(r'editstaffdetails', views.CrudStaffView, basename='editstaffdetails')
 college_admin .register(r'getallstaff', views.CrudStaffView, basename='getallstaff')
+college_admin .register(r'blockuser', views.BlockStaff, basename='blockuser')
 
 
 college_admin .register(r'addsubject', views.CrudSubjectView, basename='addsubject')

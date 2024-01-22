@@ -66,7 +66,6 @@ class CollegeUpdateViewSet(viewsets.ModelViewSet):
 
         try:
             college = RegisterCollege.objects.get(id=college_id)
-            print("Before Update - is_active:", college.user_details.is_active)
 
             # Toggle is_active and is_activate fields
             college.user_details.is_active = not college.user_details.is_active
@@ -79,8 +78,6 @@ class CollegeUpdateViewSet(viewsets.ModelViewSet):
             all_colleges = RegisterCollege.objects.all()
             serializer = UpdateCollegeSerializer(all_colleges, many=True)
 
-            print(serializer.data)
-            print(college.user_details.is_active)
 
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 
