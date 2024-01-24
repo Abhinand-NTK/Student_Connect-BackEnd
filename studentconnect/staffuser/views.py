@@ -86,9 +86,16 @@ class GetStudents(viewsets.ModelViewSet):
         college_instance = staff_instance.staff.collge_id
         semester = int(request.GET.get('semseter', 0))
         course = int(request.GET.get('course', 0))
-        students = Student.objects.filter(
+        students_meeting_criteria = Student.objects.filter(
             student__collge_id=college_instance, semester=semester, course=course)
-        serializer = StudentWithDetailsSerializer(students, many=True)
+        
+        students_ids  = [str(student.student_id) for student in students_meeting_criteria]
+
+        if ClassRoom.objects.exists():
+            students_ids = [student_id for student_id in students_ids if not ClassRoom.objects.filter(students_ids__contains=student_id).exists()]
+            students_meeting_criteria  = Student.objects.filter(student__id__in=students_ids)
+
+        serializer = StudentWithDetailsSerializer(students_meeting_criteria, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

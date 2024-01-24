@@ -108,3 +108,19 @@ class Student(models.Model):
     semester = models.CharField(null=True,blank=True)
     def __str__(self):
         return f"{self.student.first_name} {self.student.last_name}"
+
+
+class RequestForLeave(models.Model):
+    """
+    Class for reqeusting leave 
+    """
+    requestor = models.ForeignKey(CollegeDatabase,on_delete=models.CASCADE)
+    reasonforleave = models.CharField(max_length=300,null=True)
+    from_date = models.DateField(null=True)
+    to_date = models.DateField(null=True)
+    leavetype = models.CharField(null=True)
+    approval_status = models.BooleanField(null=True,default=False)
+
+    def __str__(self) -> str:
+        """Str funtion for returing a obejct of the class"""
+        return f"{self.requestor.first_name}{self.approval_status}"
