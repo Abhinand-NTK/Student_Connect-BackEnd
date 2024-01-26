@@ -194,10 +194,12 @@ class StaffUserProfileCrudView(viewsets.ModelViewSet):
         try:
             staff_instance = Staff.objects.get(user_id=user_id)
             serializer = self.get_serializer(staff_instance)
+            
         except Staff.DoesNotExist:
             try:
                 student_instance = Student.objects.get(user_id=user_id)
                 serializer = StudentUsersProfileSerilizer(student_instance)
+                
             except Student.DoesNotExist:
                 return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -206,7 +208,14 @@ class StaffUserProfileCrudView(viewsets.ModelViewSet):
     def partial_update(self, request, *args, **kwargs):
         """funtion for update the info of the user"""
         user_id = self.kwargs.get('pk')
-        staff_instance = Staff.objects.get(user_id=user_id).staff
+        try:
+            staff_instance = Staff.objects.get(user_id=user_id).staff
+        except Staff.DoesNotExist:
+            try:
+                staff_instance = Student.objects.get(user_id=user_id).student
+            except Student.DoesNotExist:
+                staff_instance = None
+
         user_image = request.FILES.get('image')
 
         if user_image:
