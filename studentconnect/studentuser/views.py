@@ -6,7 +6,7 @@ from collegeadmin.models import Student,Subject,RequestForLeave,CollegeDatabase,
 from superadmin.models import UserAccount
 from rest_framework.response import Response
 from staffuser.serializer import ClassRoomSerilizer,SerilizerForAttendenceManagement,ClassRoomForTeacherSerializerGet, SerilierClassforModulesForClassRoomForTeacher,ClassRoomForTeacher
-from .serializer import SerializerForGetSubjectsInstudentSide,SerilizerForLeaveReqeust
+from .serializer import SerializerForGetSubjectsInstudentSide,SerilizerForLeaveReqeust,SerilizerForLeaveReqeustCreate
 from collegeadmin.serializer import CrudSubjectSerilizer
 from rest_framework.permissions import IsAuthenticated
 from collegeadmin.serializer import CrudSubjectSerilizer
@@ -113,6 +113,12 @@ class LeaveRequest(ModelViewSet):
     queryset = RequestForLeave.objects.all()
     serializer_class = SerilizerForLeaveReqeust
     permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        serializer = SerilizerForLeaveReqeustCreate(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def retrieve(self, request, *args, **kwargs):
         """"
