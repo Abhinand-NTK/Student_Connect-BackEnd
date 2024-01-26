@@ -379,6 +379,8 @@ class AttendenceForStudents(viewsets.ModelViewSet):
         serializer = self.serializer_class(data, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+from .task import send_email_to_users 
 
 class CrudForModules(viewsets.ModelViewSet):
     """
@@ -395,6 +397,12 @@ class CrudForModules(viewsets.ModelViewSet):
         print(self.kwargs.get('pk') )
         id = self.kwargs.get('pk')
         instance = ModulesForClassRoomForTeacher.objects.get(id=id,class_room_staff_id=item['class_room_staff_id'])
+        students = instance.class_room_staff_id.class_id.get_students()
+        students_mail = []
+        for student in students:
+            students_mail.append(student.email)
+        print(students_mail) 
+        send_email_to_users(students_mail)
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         
         if serializer.is_valid():

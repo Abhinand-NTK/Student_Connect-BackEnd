@@ -26,3 +26,15 @@ class SerilizerForLeaveReqeust(ModelSerializer):
         """
         model = RequestForLeave
         fields = '__all__'
+
+class SerilizerForLeaveReqeustCreate(ModelSerializer):
+    """
+    Serilazer Class for the RequestForLeave Modal
+    """
+
+    class Meta:
+        """
+        Meta Class
+        """
+        model = RequestForLeave
+        fields = '__all__'
