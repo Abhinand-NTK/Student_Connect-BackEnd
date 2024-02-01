@@ -190,7 +190,6 @@ class StaffUserProfileCrudView(viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         """Function for get the list of the staff users in the database of the specific colleges"""
         user_id = self.kwargs.get('pk')
-
         try:
             staff_instance = Staff.objects.get(user_id=user_id)
             serializer = self.get_serializer(staff_instance)

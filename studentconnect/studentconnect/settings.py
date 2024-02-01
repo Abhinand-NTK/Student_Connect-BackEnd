@@ -46,10 +46,14 @@ INSTALLED_APPS = [
     'staffuser',
     'studentuser',
     'rest_framework',
+    # Cors headers Connect the frontend and backend
     "corsheaders",
     "rest_framework_simplejwt.token_blacklist",
+    # celery for task sheduling
     "django_celery_results",
     "blog",
+    # For real time connection
+    "channels"
 ]
 
 AUTH_USER_MODEL = 'superadmin.UserAccount'
@@ -64,6 +68,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'channels.middleware.security.SecurityMiddleware',
 ]
 
 
@@ -98,7 +103,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'studentconnect.wsgi.application'
 
+ASGI_APPLICATION = 'studentconnect.routing.application'
 
+# myproject/settings.py
+
+# ASGI_APPLICATION = 'studentconnect.routing.application'
 
 
 DATABASES = {
@@ -148,11 +157,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT=BASE_DIR /'static'
+STATIC_ROOT = BASE_DIR / 'static'
 
 # media files configurations
 
-MEDIA_URL='media/'
+MEDIA_URL = 'media/'
 # MEDIA_ROOT =BASE_DIR /'media'
 # MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -161,22 +170,21 @@ MEDIA_URL='media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-#Email Verfication settings
+# Email Verfication settings
 
 EMAIL_HOST = config('EMAIL_HOST')
 EMAIL_PORT = config('EMAIL_PORT')
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
-EMAIL_USE_TLS=config('EMAIL_USE_TLS')
+EMAIL_USE_TLS = config('EMAIL_USE_TLS')
 
 
-# Json Web Token(Jwt) :- Settings are added below 
-
+# Json Web Token(Jwt) :- Settings are added below
 
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        
+
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
@@ -186,10 +194,10 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.ScopedRateThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {
-        
+
         'login': '100/day'
     },
-    
+
 }
 
 SIMPLE_JWT = {
@@ -233,7 +241,7 @@ SIMPLE_JWT = {
 }
 
 
-# Strip Settings key 
+# Strip Settings key
 
 STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY')
 
@@ -252,3 +260,25 @@ SITE_URL = 'http://localhost:3000/'
 # Celery Configuration
 CELERY_BROKER_URL = "redis://localhost:6379"
 CELERY_RESULT_BACKEND = "redis://localhost:6379"
+
+
+# Setting for manage the async calls for the message and the likes for the blogs
+
+
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels.layers.InMemoryChannelLayer',
+#         'CONFIG': {},
+#     },
+# }
+
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            # Use the Redis server's address here
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
