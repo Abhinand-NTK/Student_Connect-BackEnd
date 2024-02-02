@@ -2,7 +2,7 @@ from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
 from collegeadmin.serializer import CrudStaffSerilizer
 from collegeadmin.models import Staff,Student
-
+from superadmin.serializer import UserDetailsSerilzer
 from .models import *
 
 class SerializerClassFroBlogPostModel(ModelSerializer):
@@ -43,5 +43,18 @@ class SerializerClassFroBlogPostModelCreate(ModelSerializer):
         """
         Meta class
         """
-        fields = '__all__'
         model  = BlogPost
+        fields = '__all__'
+
+class SerilizerClassForComments(ModelSerializer):
+    """
+    Model serializer for comments
+    """
+    user_commented = UserDetailsSerilzer(source='author', read_only=True)
+
+    class Meta:
+        """
+        Meta class
+        """
+        model = Comment
+        fields = ['content', 'date_commented', 'id', 'user_commented','author']

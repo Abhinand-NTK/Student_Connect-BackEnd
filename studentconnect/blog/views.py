@@ -1,9 +1,10 @@
 from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet
+from rest_framework import viewsets
 from .models import *
 from collegeadmin.models import Staff, Student
 from rest_framework.permissions import IsAuthenticated
-from .serializer import SerializerClassFroBlogPostModel, SerializerClassFroBlogPostModelCreate
+from .serializer import SerializerClassFroBlogPostModel, SerializerClassFroBlogPostModelCreate,SerilizerClassForComments
 from rest_framework.response import Response
 from rest_framework import status
 from channels.layers import get_channel_layer
@@ -11,6 +12,8 @@ from asgiref.sync import async_to_sync
 from django.http import JsonResponse
 from channels.db import database_sync_to_async
 from .consumers import NotificationConsumer
+from superadmin.serializer import UserDetailsSerilzer
+
 
 class BlogPosts(ModelViewSet):
     """
@@ -57,21 +60,18 @@ class BlogPosts(ModelViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-    
 class LikeBlogPost(ModelViewSet):
     """
     Class for like the blog
     """
     queryset = BlogPost.objects.all()
     serializer_class = SerializerClassFroBlogPostModel
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
         """
         Function for creating a like for the blog post
         """
-
-        
         user = request.user
         blog_id = request.data.get('id')
 
@@ -95,9 +95,8 @@ class LikeBlogPost(ModelViewSet):
 
             author_channel_name = f'user_{blog.user.id}'
 
-            
-            self.send_notification_to_user(author_channel_name, f'Your post "{blog.title}" has a new like from {request.user.first_name}.',blog.user.id)
-
+            self.send_notification_to_user(
+                author_channel_name, f'Your post "{blog.title}" has a new like from {request.user.first_name}.', blog.user.id)
 
         like_count = blog.likes.count()
 
@@ -112,8 +111,111 @@ class LikeBlogPost(ModelViewSet):
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
             channel_name,
-            {'type': 'send_notification', 'notification': message,'blog_creator_id':blog_creator_id}
+            {'type': 'send_notification', 'notification': message,
+                'blog_creator_id': blog_creator_id}
         )
-   
 
 
+    
+class CommentBlogPost(ModelViewSet):
+    """
+    Class for handle the comments for a post 
+    """
+    queryset = Comment.objects.all()
+    serializer_class = SerializerClassFroBlogPostModel
+    permission_classes = [IsAuthenticated]
+
+
+    def create(self, request, *args, **kwargs):
+        """
+        Post method
+        """
+        request.data['author'] = request.user
+        user = request.user
+        blog_id = request.data.get('blogid')
+        text = request.data.get('content')
+
+        if not blog_id or not text:
+            return Response({'error': 'Blog post id and text are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            blog = BlogPost.objects.get(id=blog_id)
+        except BlogPost.DoesNotExist:
+            return Response({'error': 'Blog post does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+        request.data.pop('blogid')
+        comment = Comment.objects.create(**request.data)
+        blog.comments.add(comment)
+
+        
+        serializer = SerilizerClassForComments(blog.comments, many=True)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    def retrieve(self, request, *args, **kwargs):
+        """
+        Function for retrieving the comments of a particular post
+        """
+        blog_id = self.kwargs['pk']
+        data = Comment.objects.filter(blogpost=blog_id)
+        serializer = SerilizerClassForComments(data, many=True) 
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def destroy(self, request, *args, **kwargs):
+        """
+        Function for delete the instance of the comment model
+        """
+        # try:
+        comment_id = self.kwargs['pk']
+        comment_id = self.kwargs['pk']
+        comment = Comment.objects.get(id=comment_id)
+        blog_id = BlogPost.objects.get(comments=comment)
+
+        comment.delete()
+
+        comments = Comment.objects.filter(blogpost=blog_id.id)
+        serializer = SerilizerClassForComments(comments, many=True)
+        
+        return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
+
+
+def get_active_user_data(user_id):
+    active_users = UserAccount.objects.filter(id=user_id)
+    serializer = UserDetailsSerilzer(active_users, many=True)
+    return serializer.data
+
+def notify_active_users(user_data):
+    channel_layer = get_channel_layer()
+    data = {'type': 'broadcast.active_users', 'data': user_data}
+    channel_name = 'active_user_channel'
+    async_to_sync(channel_layer.group_send)(channel_name, data)
+
+class ActiveUsersView(viewsets.ReadOnlyModelViewSet):
+    """
+    Data about the active users
+    """
+    queryset = UserAccount.objects.all()
+    serializer_class = UserDetailsSerilzer
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request, *args, **kwargs):
+        """
+        List of the active users
+        """
+        # Notify active users to WebSocket consumers
+        user_id = request.user.id
+        active_user_data = get_active_user_data(user_id)
+        print("----------------------")
+        print("----------------------")
+        print("----------------------")
+        print("----------------------")
+        print(active_user_data)
+        print("----------------------")
+        print("----------------------")
+        print("----------------------")
+        print("----------------------")
+        print("----------------------")
+        notify_active_users(active_user_data)
+
+        return super().list(request, *args, **kwargs)
+
+    

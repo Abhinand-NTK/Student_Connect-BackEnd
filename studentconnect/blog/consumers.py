@@ -46,3 +46,23 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         message = event['notification']
         blog_creator_id = event.get('blog_creator_id')
         await self.send(text_data=json.dumps({'notification': message}))
+
+
+class ActiveUserConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        await self.channel_layer.group_add('active_user_channel', self.channel_name)
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        # Leave the group when the websocket disconnects
+        await self.channel_layer.group_discard('active_user_channel', self.channel_name)
+
+    async def receive(self, text_data):
+        # Handle incoming messages if needed
+        pass
+
+    async def broadcast_active_users(self, event):
+        logger.info("WebSocket data active users are established")
+        data = event['data']
+        logger.info(f"WebSocket data received: {data}")
+        await self.send(text_data=json.dumps(data))
