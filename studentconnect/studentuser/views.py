@@ -56,14 +56,11 @@ class VideosAssignmentForStudent(ModelViewSet):
         """
         class_room_staff_id = request.GET.get('class_room_staff_id')
         sub_id = request.GET.get('sub_id')
-        print(class_room_staff_id,sub_id)
         media_instance = ClassRoomForTeacher.objects.filter(class_id=class_room_staff_id,
                                                                       sub_id=sub_id).first()
         if media_instance:
             modules_for_classroom = media_instance.modulesforclassroomforteacher_set.all()
-            print(modules_for_classroom)
             serializer = SerilierClassforModulesForClassRoomForTeacher(modules_for_classroom,many=True)
-            print("The data :---",media_instance)
             return Response(serializer.data,status=status.HTTP_200_OK)
         else:
             return Response({"detail": "There is nothing right now."},status=status.HTTP_204_NO_CONTENT)
@@ -84,8 +81,6 @@ class StudentAttendence(ModelViewSet):
         user_id = self.kwargs.get('pk')
         UserAccount.objects.get(id=user_id)
         student_instance = Student.objects.get(user_id=user_id)
-        # Subjects = Subject.objects.filter(semseter=student_instance.semester, course=student_instance.course)
-        # subjectNames = [subject.name for subject in Subjects]
         attendance_data = defaultdict(lambda: {'present': 0, 'total': 0})
         Attendances = AttendanInClassroom.objects.select_related('student_id', 'class_room_for_staff_id__sub_id').filter(student_id__user_id=user_id)
         # Update the attendance_data based on Attendances
@@ -121,7 +116,7 @@ class LeaveRequest(ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def retrieve(self, request, *args, **kwargs):
-        """"
+        """"    
         Funtion for retrive the objects in the class
         """
         id = self.kwargs.get('pk')

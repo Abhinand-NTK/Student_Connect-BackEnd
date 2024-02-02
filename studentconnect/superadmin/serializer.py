@@ -34,7 +34,7 @@ class UserDetailsSerilzer(serializers.ModelSerializer):
         model = UserAccount
         fields = [
             'first_name', 'last_name', 'email', 'is_active',
-            'is_superuser', 'user_image', 'phone_number'
+            'is_superuser', 'user_image', 'phone_number','id',
         ]
 
 

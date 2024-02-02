@@ -117,3 +117,4 @@ class StaffWithDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Staff
         fields = ['staff_details','is_hod']
+        

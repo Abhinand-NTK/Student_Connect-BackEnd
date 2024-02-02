@@ -20,6 +20,13 @@ from django.conf.urls.static import static
 from django.conf import settings
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
 from superadmin.views import MyTokenObtainPairView
+# from blog.consumers import BlogConsumer  # Import your consumer
+
+
+# websocket_urlpatterns = [
+#     path('ws/bloglike/', BlogConsumer.as_asgi()),
+#     path("ws/blog/<int:blog_id>/", BlogConsumer.as_asgi())
+# ]
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,8 +35,14 @@ urlpatterns = [
     path('api/payment/', include('payments.urls')),
     path('api/staffuser/', include('staffuser.urls')),
     path('api/studentuser/', include('studentuser.urls')),
+    path('api/blogpost/', include('blog.urls')),
     path('api/token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-# urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+# # Add the WebSocket routing to urlpatterns
+# urlpatterns += [
+#     path('ws/', include(websocket_urlpatterns)),
+# ]
