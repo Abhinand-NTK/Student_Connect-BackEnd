@@ -204,16 +204,6 @@ class ActiveUsersView(viewsets.ReadOnlyModelViewSet):
         # Notify active users to WebSocket consumers
         user_id = request.user.id
         active_user_data = get_active_user_data(user_id)
-        print("----------------------")
-        print("----------------------")
-        print("----------------------")
-        print("----------------------")
-        print(active_user_data)
-        print("----------------------")
-        print("----------------------")
-        print("----------------------")
-        print("----------------------")
-        print("----------------------")
         notify_active_users(active_user_data)
 
         return super().list(request, *args, **kwargs)

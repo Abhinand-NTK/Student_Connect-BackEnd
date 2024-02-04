@@ -66,3 +66,4 @@ class ActiveUserConsumer(AsyncWebsocketConsumer):
         data = event['data']
         logger.info(f"WebSocket data received: {data}")
         await self.send(text_data=json.dumps(data))
+

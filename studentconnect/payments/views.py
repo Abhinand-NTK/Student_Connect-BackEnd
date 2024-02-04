@@ -3,6 +3,7 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework import serializers
 import stripe
+from superadmin.models import RegisterCollege
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -49,10 +50,16 @@ class StripeCheckoutView(viewsets.ModelViewSet):
                 payment_method_types=['card', ],
                 mode='subscription',  # make it as the payment if the subscription is not working properly
                 currency="inr",
-                success_url='http://localhost:5173/admin/landing/',
+                success_url='http://localhost:8080/admin/landing/',
                 cancel_url=f'{settings.SITE_URL}/status' + '?canceled=true',
                 customer=customer.id
             )
+
+            id = request.user
+
+            statuss = RegisterCollege.objects.get(user_details = id)
+            statuss.verified = True
+            statuss.save()
 
             return Response(
                 {'url': checkout_session.url}
