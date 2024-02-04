@@ -54,7 +54,7 @@ class BlogPost(models.Model):
     user = models.ForeignKey(UserAccount,on_delete=models.CASCADE,null=True)
     title = models.CharField(max_length=200,)
     content = models.TextField()
-    image_url = models.URLField(null=True)
+    image_url = models.URLField(blank=True,null=True)
     date_posted = models.DateTimeField(default=timezone.now)
     author = models.ForeignKey(CollegeDatabase, on_delete=models.CASCADE)
     tags = models.ManyToManyField(Tag,blank=True)

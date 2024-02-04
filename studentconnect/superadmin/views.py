@@ -11,6 +11,9 @@ from django.utils.html import strip_tags
 from django.conf import settings
 from .serializer import RegisterCollegeSerilzer, MyTokenSerilizer, UserDetailsSerilzer, CollegeDetailsSerilizer, UpdateCollegeSerializer
 from .models import RegisterCollege, UserAccount
+import smtplib
+from email.mime.text import MIMEText
+import secrets
 
 
 class CollegeRegisterViewSet(viewsets.ModelViewSet):
@@ -215,8 +218,149 @@ class CheckSubscription(viewsets.ModelViewSet):
 
         id = request.user.id
 
-        stat= RegisterCollege.objects.get(user_details=id)
+        stat = RegisterCollege.objects.get(user_details=id)
 
         serilizer = RegisterCollegeSerilzer(stat)
 
-        return Response(serilizer.data,status=status.HTTP_200_OK)
+        return Response(serilizer.data, status=status.HTTP_200_OK)
+
+
+
+
+def genretetopo(length=6):
+    """
+    Generate a random OTP of the specified length.
+    """
+    otp = ''.join(secrets.choice('0123456789') for _ in range(length))
+    return otp
+
+
+class OtpRequest(viewsets.ModelViewSet):
+    """
+    Class for genrateotp
+    """
+
+    queryset = UserAccount.objects.all()
+    serializer_class = UserDetailsSerilzer
+
+
+    def create(self, request, *args, **kwargs):
+        """
+        Function for sending the OTP
+        """
+
+        print()
+        email = request.data.get('data')  # Use get to avoid KeyError if 'email' is not present
+        user = None
+        try:
+            user = UserAccount.objects.get(email=email['username'])
+        except UserAccount.DoesNotExist:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        # Assuming you have a function named genretetopo that generates the OTP
+        otp = genretetopo()
+
+        # Save the OTP to the user
+        user.otp = otp
+        user.save()
+
+        # Send email with the OTP
+        subject = 'Your OTP for verification'
+        message = f'Your OTP is: {otp}'
+        recipient_list = [user.email]
+
+        try:
+            send_mail(subject, message,settings.DEFAULT_FROM_EMAIL,recipient_list)
+            if user:
+                request.session['user_id'] = user.id
+            print(request.session.get('user_id'))
+            return Response({'user_id': user.id},status=status.HTTP_200_OK)
+        except smtplib.SMTPException as e:
+            # Handle SMTPException (e.g., connection issues, authentication failure, etc.)
+            print(f"Error sending email: {e}")
+            return Response({"error": "Error sending OTP via email"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    def partial_update(self, request, *args, **kwargs):
+        """
+        Confirm the OTP
+        """
+        print(request.data)
+        id = self.kwargs.get('pk')
+        print(id)
+
+        # user_id = request.session.get('user_id')
+
+        # print(user_id)
+
+
+        if not id:
+            return Response({'message': "Your session is expired"}, status=status.HTTP_401_UNAUTHORIZED)
+            print('1')
+
+        if  id:
+            user = UserAccount.objects.get(id=id)
+            print(user.otp)
+
+            provided_otp = request.data.get('data', {}).get('otp')
+
+            if provided_otp and user.otp == provided_otp:
+                user.otp = True
+                user.save()
+                return Response({'message': "OTP verified successfully"}, status=status.HTTP_200_OK)
+            else:
+                return Response({'message': "Invalid OTP"}, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            return Response({'message': "User ID mismatch"}, status=status.HTTP_401_UNAUTHORIZED)
+    
+class ResetPassword(viewsets.ModelViewSet):
+    """
+    Function for reset the password
+    """
+    queryset = UserAccount.objects.all()
+    serializer_class = UserDetailsSerilzer
+
+    def partial_update(self, request, *args, **kwargs):
+        """
+        Update the password
+        """
+        print(request.data)
+        data = request.data
+        user_id = self.kwargs.get('pk')
+
+        if UserAccount.objects.get(id=user_id).otp == True:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        try:
+            user = UserAccount.objects.get(id=user_id)
+        except UserAccount.DoesNotExist:
+            return Response({'Message': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Check if OTP is set
+        if user.otp:
+            new_password = data.get('data', {}).get('newPassword')
+            confirm_password = data.get('data', {}).get('confirmPassword')
+
+            if new_password == confirm_password:
+                # Use the reset_password method if implemented in your UserAccount model
+                user.set_password(confirm_password)
+                user.save()
+                return Response({'Message': "Password is changed successfully"}, status=status.HTTP_200_OK)
+            else:
+                return Response({'Message': "New and confirm passwords do not match"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'Message': "OTP not set for the user"}, status=status.HTTP_400_BAD_REQUEST)
+            
+
+
+class Dashboard(viewsets.ModelViewSet):
+    """
+    Dashboard is for superadmin
+    """
+    queryset = RegisterCollege.objects.all()
+    serializer_class = None
+
+    def list(self, request, *args, **kwargs):
+        total_count = RegisterCollege.objects.all().count()
+        verified_colleges_count = RegisterCollege.objects.filter(verified=True).count()
+
+        data = {'total_count': total_count, 'verified_colleges_count': verified_colleges_count}
+        return Response(data, status=status.HTTP_200_OK)

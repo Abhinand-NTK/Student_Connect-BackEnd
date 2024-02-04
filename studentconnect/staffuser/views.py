@@ -217,6 +217,8 @@ class StaffUserProfileCrudView(viewsets.ModelViewSet):
 
         user_image = request.FILES.get('image')
 
+        print(user_image)
+
         if user_image:
             staff_instance.user_image = user_image
             staff_instance.save()
