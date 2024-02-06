@@ -22,6 +22,5 @@ user.register(r'dashboard', views.Dashboard, basename='dashboard')
 urlpatterns = [
     path('', include(user.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    # path('test/',views.test,name='test')
 ]
 urlpatterns += user.urls

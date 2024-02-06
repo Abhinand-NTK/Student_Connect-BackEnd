@@ -158,11 +158,13 @@ class Send_Account_Activation_Mail(viewsets.ModelViewSet):
             if not college.Verfication_email_status:
                 # Creating an Account for the college using the random
                 # password and make the user_type as the collegeadmin
-                admin_account = UserAccount.objects.create(
+                admin_account,created = UserAccount.objects.get_or_create(
                     email=college.email,
                     is_active=True,  # Change to is_active instead of is_activate
                     user_type=1
                 )
+                if not created:
+                    return Response({'Message:"The user with the mail is already exist'},status=status.HTTP_400_BAD_REQUEST)
 
                 password = get_random_string(length=8)
                 admin_account.set_password(password)

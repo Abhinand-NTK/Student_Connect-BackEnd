@@ -32,6 +32,8 @@ college_admin .register(r'editstudent', views.StudentCrudView, basename='editstu
 
 college_admin .register(r'createAccounforuser', views.CreatingUsersView, basename='createAccounforuser')
 
+college_admin .register(r'existemail', views.ExistEmailsindataBase, basename='existemail')
+
 
 
 urlpatterns = [

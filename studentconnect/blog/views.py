@@ -68,14 +68,15 @@ class BlogPosts(ModelViewSet):
         Function for creating the instance of the model
         """
         data = request.data
-
         try:
             student_instance = Student.objects.get(user_id=request.user.id)
             author_id = student_instance.student.id
+            data.pop('id')
         except Student.DoesNotExist:
             try:
                 staff_instance = Staff.objects.get(user_id=request.user.id)
                 author_id = staff_instance.staff.id
+                data.pop('id')
             except Staff.DoesNotExist:
                 raise Http404("User not found")
 
@@ -100,6 +101,7 @@ class BlogPosts(ModelViewSet):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

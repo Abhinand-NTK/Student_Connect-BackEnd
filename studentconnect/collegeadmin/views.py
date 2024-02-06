@@ -436,3 +436,26 @@ class CreatingUsersView(viewsets.ModelViewSet):
         )
 
         return Response({'message': 'Activation email sent successfully.'}, status=status.HTTP_200_OK)
+
+class ExistEmailsindataBase(viewsets.ModelViewSet):
+    """
+    Class for check the Emails
+    """
+    queryset = CollegeDatabase.objects.all()
+    serializer_class = None
+
+    def list(self, request, *args, **kwargs):
+
+        # Assuming both models have an 'email' field
+        user_emails = UserAccount.objects.all().values_list('email', flat=True)
+        college_emails = RegisterCollege.objects.all().values_list('email', flat=True)
+
+        # Combine the email lists using the union operator
+        emails = user_emails.union(college_emails)
+
+        # If you want to convert the result to a list, you can use the list() function
+        email_list = list(emails)
+        
+        response_data = {'emails': email_list}  
+
+        return Response(response_data,status=status.HTTP_200_OK)
