@@ -8,6 +8,7 @@ college_admin  = routers.DefaultRouter()
 
 college_admin .register(r'addcourse', views.CrudCourseView, basename='addcourse')
 college_admin .register(r'editcourse', views.CrudCourseView, basename='editcourse')
+college_admin .register(r'blockcoure', views.BlockCourse, basename='blockcoure')
 college_admin .register(r'getallcourse', views.CrudCourseView, basename='getallcourse')
 
 college_admin .register(r'addstaff', views.CrudStaffView, basename='addstaff')
@@ -31,6 +32,8 @@ college_admin .register(r'editstudent', views.StudentCrudView, basename='editstu
 
 
 college_admin .register(r'createAccounforuser', views.CreatingUsersView, basename='createAccounforuser')
+
+college_admin .register(r'existemail', views.ExistEmailsindataBase, basename='existemail')
 
 
 

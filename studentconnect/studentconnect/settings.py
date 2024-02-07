@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'payments',
     'staffuser',
     'studentuser',
+    'chat_messages',
     'rest_framework',
     # Cors headers Connect the frontend and backend
     "corsheaders",
@@ -53,7 +54,8 @@ INSTALLED_APPS = [
     "django_celery_results",
     "blog",
     # For real time connection
-    "channels"
+    "channels",
+    # "django_rq",
 ]
 
 AUTH_USER_MODEL = 'superadmin.UserAccount'

@@ -39,12 +39,15 @@ class SerializerClassFroBlogPostModelCreate(ModelSerializer):
     """
     Serilizer 
     """
+    # image_url = serializers.ImageField(allow_null=True, required=False)
+
     class Meta:
         """
         Meta class
         """
         model  = BlogPost
         fields = '__all__'
+        # image_url = serializers.FileField(required=False)
 
 class SerilizerClassForComments(ModelSerializer):
     """

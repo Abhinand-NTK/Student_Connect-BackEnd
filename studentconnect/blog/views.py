@@ -4,7 +4,7 @@ from rest_framework import viewsets
 from .models import *
 from collegeadmin.models import Staff, Student
 from rest_framework.permissions import IsAuthenticated
-from .serializer import SerializerClassFroBlogPostModel, SerializerClassFroBlogPostModelCreate,SerilizerClassForComments
+from .serializer import SerializerClassFroBlogPostModel, SerializerClassFroBlogPostModelCreate, SerilizerClassForComments
 from rest_framework.response import Response
 from rest_framework import status
 from channels.layers import get_channel_layer
@@ -13,6 +13,7 @@ from django.http import JsonResponse
 from channels.db import database_sync_to_async
 from .consumers import NotificationConsumer
 from superadmin.serializer import UserDetailsSerilzer
+from django.http import Http404
 
 
 class BlogPosts(ModelViewSet):
@@ -23,39 +24,84 @@ class BlogPosts(ModelViewSet):
     serializer_class = SerializerClassFroBlogPostModel
     permisssionclass = [IsAuthenticated]
 
+    # def create(self, request, *args, **kwargs):
+    #     """
+    #     funtion for creating the instance of the model 
+    #     """
+    #     data = request.data
+    #     try:
+    #         student_instance = Student.objects.get(user_id__id=request.user.id)
+    #         data['author'] = student_instance.student.id
+    #         data['user'] = request.user.id
+    #         data['image_url'] = request.image_url
+    #         data.pop('id')
+    #     except Student.DoesNotExist:
+    #         try:
+    #             student_instance = Staff.objects.get(user_id=request.user.id)
+    #             data['author'] = student_instance.staff.id
+    #             data['user'] = request.user.id
+    #             data['image_url'] = request.image_url
+    #             data.pop('id')
+    #         except Staff.DoesNotExist:
+    #             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    #     post_id = data.get('id')
+    #     print(post_id)
+
+    #     if post_id is not None:
+    #         existing_post = BlogPost.objects.get(pk=post_id)
+    #         serializer = SerializerClassFroBlogPostModelCreate(
+    #             existing_post, data=data)
+    #         if serializer.is_valid():
+    #             serializer.save()
+    #             return Response(serializer.data, status=status.HTTP_205_RESET_CONTENT)
+
+    #     serializer = SerializerClassFroBlogPostModelCreate(data=data)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    #     print(serializer.errors)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     def create(self, request, *args, **kwargs):
         """
-        funtion for creating the instance of the model 
+        Function for creating the instance of the model
         """
         data = request.data
         try:
-            student_instance = Student.objects.get(user_id__id=request.user.id)
-            data['author'] = student_instance.student.id
-            data['user'] = request.user.id
+            student_instance = Student.objects.get(user_id=request.user.id)
+            author_id = student_instance.student.id
             data.pop('id')
         except Student.DoesNotExist:
             try:
-                student_instance = Staff.objects.get(user_id=request.user.id)
-                data['author'] = student_instance.staff.id
-                data['user'] = request.user.id
+                staff_instance = Staff.objects.get(user_id=request.user.id)
+                author_id = staff_instance.staff.id
                 data.pop('id')
             except Staff.DoesNotExist:
-                return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+                raise Http404("User not found")
+
+        data['author'] = author_id
+        data['user'] = request.user.id
 
         post_id = data.get('id')
 
         if post_id is not None:
-            existing_post = BlogPost.objects.get(pk=post_id)
-            serializer = SerializerClassFroBlogPostModelCreate(
-                existing_post, data=data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_205_RESET_CONTENT)
+            try:
+                existing_post = BlogPost.objects.get(pk=post_id)
+                serializer = SerializerClassFroBlogPostModelCreate(
+                    existing_post, data=data)
+            except BlogPost.DoesNotExist:
+                return Response(
+                    {"error": "Blog post not found"},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+        else:
+            serializer = SerializerClassFroBlogPostModelCreate(data=data)
 
-        serializer = SerializerClassFroBlogPostModelCreate(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -116,7 +162,6 @@ class LikeBlogPost(ModelViewSet):
         )
 
 
-    
 class CommentBlogPost(ModelViewSet):
     """
     Class for handle the comments for a post 
@@ -124,7 +169,6 @@ class CommentBlogPost(ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = SerializerClassFroBlogPostModel
     permission_classes = [IsAuthenticated]
-
 
     def create(self, request, *args, **kwargs):
         """
@@ -146,20 +190,19 @@ class CommentBlogPost(ModelViewSet):
         comment = Comment.objects.create(**request.data)
         blog.comments.add(comment)
 
-        
         serializer = SerilizerClassForComments(blog.comments, many=True)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
+
     def retrieve(self, request, *args, **kwargs):
         """
         Function for retrieving the comments of a particular post
         """
         blog_id = self.kwargs['pk']
         data = Comment.objects.filter(blogpost=blog_id)
-        serializer = SerilizerClassForComments(data, many=True) 
+        serializer = SerilizerClassForComments(data, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
     def destroy(self, request, *args, **kwargs):
         """
         Function for delete the instance of the comment model
@@ -174,7 +217,7 @@ class CommentBlogPost(ModelViewSet):
 
         comments = Comment.objects.filter(blogpost=blog_id.id)
         serializer = SerilizerClassForComments(comments, many=True)
-        
+
         return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
 
 
@@ -183,11 +226,13 @@ def get_active_user_data(user_id):
     serializer = UserDetailsSerilzer(active_users, many=True)
     return serializer.data
 
+
 def notify_active_users(user_data):
     channel_layer = get_channel_layer()
     data = {'type': 'broadcast.active_users', 'data': user_data}
     channel_name = 'active_user_channel'
     async_to_sync(channel_layer.group_send)(channel_name, data)
+
 
 class ActiveUsersView(viewsets.ReadOnlyModelViewSet):
     """
@@ -204,18 +249,6 @@ class ActiveUsersView(viewsets.ReadOnlyModelViewSet):
         # Notify active users to WebSocket consumers
         user_id = request.user.id
         active_user_data = get_active_user_data(user_id)
-        print("----------------------")
-        print("----------------------")
-        print("----------------------")
-        print("----------------------")
-        print(active_user_data)
-        print("----------------------")
-        print("----------------------")
-        print("----------------------")
-        print("----------------------")
-        print("----------------------")
         notify_active_users(active_user_data)
 
         return super().list(request, *args, **kwargs)
-
-    

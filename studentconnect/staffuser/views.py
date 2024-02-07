@@ -1,10 +1,11 @@
+from .task import send_email_to_users
 from django.forms.models import model_to_dict
 from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from collegeadmin.serializer import StudentCrudSerilizer, StudentWithDetailsSerializer, CrudSubjectSerilizer
 from collegeadmin.serializer import DataValidationSerilzier, ListViewSerilzer
-from .serializer import SerilierClassforModulesForClassRoomForTeacher,StudentUsersProfileSerilizer,SerilizerForAttendenceManagement, ClassRoomForTeacherSerializerGet, ClassRoomForTeacherSerializers, ClassRoomForTeacherSerializer, ClassRoomSerilizer, ClassRoomSerializerWithAllData, StaffUserProfileSerilizer, ClassRoomSerilizerGet
+from .serializer import SerilierClassforModulesForClassRoomForTeacher, StudentUsersProfileSerilizer, SerilizerForAttendenceManagement, ClassRoomForTeacherSerializerGet, ClassRoomForTeacherSerializers, ClassRoomForTeacherSerializer, ClassRoomSerilizer, ClassRoomSerializerWithAllData, StaffUserProfileSerilizer, ClassRoomSerilizerGet
 from collegeadmin.models import Staff, Student, Subject, CollegeDatabase
 from .models import *
 # Create your views here.
@@ -28,8 +29,6 @@ class CrudForClassRoom(viewsets.ModelViewSet):
                 course=request.data.get('course_id'))
             subjects_ids = list(subjects.values_list('id', flat=True))
 
-            print(subjects_ids)
-            print(request.data.get('data'))
         except Subject.DoesNotExist:
             subjects_ids = []
 
@@ -39,6 +38,7 @@ class CrudForClassRoom(viewsets.ModelViewSet):
             'college_id': college_id,
             'students_ids': ','.join(map(str, request.data.get('data', []))),
             'subject_ids': ','.join(map(str, subjects_ids)),
+            'semester': subjects.first().semseter,
         }
 
         serializer = ClassRoomSerilizer(data=classroom_data)
@@ -46,10 +46,48 @@ class CrudForClassRoom(viewsets.ModelViewSet):
             serializer.save()
             return Response({'message': 'Classroom created successfully'}, status=status.HTTP_201_CREATED)
         else:
-            print(serializer.error_messages)
-            print(serializer.errors)
+
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def partial_update(self, request, *args, **kwargs):
+        """
+        Updates the students details in the class 
+        """
+        data = request.data.copy()  # Create a copy of request data
+
+        classroom_id = self.kwargs['pk']
+        student_ids = ','.join(map(str, data.get('student_ids', [])))
+
+        try:
+            classroom = ClassRoom.objects.get(id=classroom_id)
+        except ClassRoom.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        classroom.students_ids = student_ids
+        classroom.save()
+
+        return Response(status=status.HTTP_200_OK)
+    
+class BlcokClass(viewsets.ModelViewSet):
+    """
+    Blocking the class 
+    """
+    def create(self, request, *args, **kwargs):
+        """
+        Funtion for active and deactive the classroom
+        """
+        class_id = request.data.get('id')
+            
+        try:
+            classroom = ClassRoom.objects.get(id=class_id)
+        except ClassRoom.DoesNotExist:
+            return Response({'error': 'ClassRoom with the specified ID does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Toggle the active status
+        classroom.active = not classroom.active
+        classroom.save()
+        
+        return Response({'success': f'ClassRoom {class_id} status has been updated successfully.'}, status=status.HTTP_200_OK)
 
 class GetCourse(viewsets.ModelViewSet):
     """
@@ -88,14 +126,18 @@ class GetStudents(viewsets.ModelViewSet):
         course = int(request.GET.get('course', 0))
         students_meeting_criteria = Student.objects.filter(
             student__collge_id=college_instance, semester=semester, course=course)
-        
-        students_ids  = [str(student.student_id) for student in students_meeting_criteria]
+
+        students_ids = [str(student.student_id)
+                        for student in students_meeting_criteria]
 
         if ClassRoom.objects.exists():
-            students_ids = [student_id for student_id in students_ids if not ClassRoom.objects.filter(students_ids__contains=student_id).exists()]
-            students_meeting_criteria  = Student.objects.filter(student__id__in=students_ids)
+            students_ids = [student_id for student_id in students_ids if not ClassRoom.objects.filter(
+                students_ids__contains=student_id).exists()]
+            students_meeting_criteria = Student.objects.filter(
+                student__id__in=students_ids)
 
-        serializer = StudentWithDetailsSerializer(students_meeting_criteria, many=True)
+        serializer = StudentWithDetailsSerializer(
+            students_meeting_criteria, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -193,17 +235,17 @@ class StaffUserProfileCrudView(viewsets.ModelViewSet):
         try:
             staff_instance = Staff.objects.get(user_id=user_id)
             serializer = self.get_serializer(staff_instance)
-            
+
         except Staff.DoesNotExist:
             try:
                 student_instance = Student.objects.get(user_id=user_id)
                 serializer = StudentUsersProfileSerilizer(student_instance)
-                
+
             except Student.DoesNotExist:
                 return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
     def partial_update(self, request, *args, **kwargs):
         """funtion for update the info of the user"""
         user_id = self.kwargs.get('pk')
@@ -217,6 +259,8 @@ class StaffUserProfileCrudView(viewsets.ModelViewSet):
 
         user_image = request.FILES.get('image')
 
+        print(user_image)
+
         if user_image:
             staff_instance.user_image = user_image
             staff_instance.save()
@@ -224,7 +268,6 @@ class StaffUserProfileCrudView(viewsets.ModelViewSet):
             return Response(status=status.HTTP_200_OK)
         else:
             return Response({'error': 'No image provided'}, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 class GetPro(viewsets.ModelViewSet):
@@ -306,7 +349,7 @@ class GetViewForClassRoomForTeacher(viewsets.ModelViewSet):
     """
     queryset = ClassRoomForTeacher.objects.all()
     serializer_class = ClassRoomForTeacherSerializers
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def retrieve(self, request, *args, **kwargs):
         """
@@ -314,7 +357,7 @@ class GetViewForClassRoomForTeacher(viewsets.ModelViewSet):
         """
         user_id = self.kwargs.get('pk')
         # staff = Staff.objects.get(id=user_id)
-        data = self.queryset.filter(staff_id=user_id)
+        data = self.queryset.filter(staff_id=user_id,class_id__active=True)
         for i in data:
             subjects_idss = i.class_id.get_students()
             # print(subjects_ids)
@@ -366,7 +409,6 @@ class AttendenceForStudents(viewsets.ModelViewSet):
 
         return Response(response_data, status=status.HTTP_201_CREATED)
 
-
     def list(self, request, *args, **kwargs):
         """
         Retrieve the total attendance list of the students using id of that classroom, class_room_for_staff_id, and date
@@ -387,8 +429,7 @@ class AttendenceForStudents(viewsets.ModelViewSet):
         serializer = self.serializer_class(data, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
-from .task import send_email_to_users 
+
 
 class CrudForModules(viewsets.ModelViewSet):
     """
@@ -397,26 +438,29 @@ class CrudForModules(viewsets.ModelViewSet):
     queryset = ModulesForClassRoomForTeacher.objects.all()
     serializer_class = SerilierClassforModulesForClassRoomForTeacher
     permission_classes = [IsAuthenticated]
+
     def partial_update(self, request, *args, **kwargs):
         """
         Function call for saving the url instance of the video
         """
         item = request.data
-        print(self.kwargs.get('pk') )
+        print(self.kwargs.get('pk'))
         id = self.kwargs.get('pk')
-        instance = ModulesForClassRoomForTeacher.objects.get(id=id,class_room_staff_id=item['class_room_staff_id'])
+        instance = ModulesForClassRoomForTeacher.objects.get(
+            id=id, class_room_staff_id=item['class_room_staff_id'])
         students = instance.class_room_staff_id.class_id.get_students()
         students_mail = []
         for student in students:
             students_mail.append(student.email)
-        print(students_mail) 
+        print(students_mail)
         send_email_to_users(students_mail)
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
-        
+        serializer = self.get_serializer(
+            instance, data=request.data, partial=True)
+
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
-        
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     # def destroy(self, request, *args, **kwargs):
     #     """

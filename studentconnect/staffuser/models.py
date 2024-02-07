@@ -12,6 +12,8 @@ class ClassRoom(models.Model):
     college_id = models.ForeignKey(RegisterCollege,on_delete=models.CASCADE,null=True)
     name = models.CharField(max_length = 150,null=True)
     course = models.ForeignKey(Department,on_delete=models.CASCADE,null=True)
+    semester = models.CharField(max_length=20,null=True)
+    active = models.BooleanField(default=True,null=True)
 
     students_ids = models.CharField(
         max_length=255,

@@ -63,6 +63,32 @@ class CrudCourseView(viewsets.ModelViewSet):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+class BlockCourse(viewsets.ModelViewSet):
+    """
+    Class view for block the course
+    """
+
+    queryset = Department.objects.all()
+    permission_classes =[IsAuthenticated]
+    serializer_class = DepartmentSerializer
+
+    def create(self, request, *args, **kwargs):
+        """
+        Function for block the user
+        """
+        id  = request.data.get('id')
+
+        department = Department.objects.get(id=id)
+        # subjects = Subject.objects.filter(course=department)
+        
+        for i in Subject.objects.filter(course=department):
+            i.active = not i.active
+            i.save()
+        department.active = not department.active
+        department.save()
+
+        return Response(status=status.HTTP_200_OK)
+
 
 class CrudStaffView(viewsets.ModelViewSet):
     """
@@ -436,3 +462,26 @@ class CreatingUsersView(viewsets.ModelViewSet):
         )
 
         return Response({'message': 'Activation email sent successfully.'}, status=status.HTTP_200_OK)
+
+class ExistEmailsindataBase(viewsets.ModelViewSet):
+    """
+    Class for check the Emails
+    """
+    queryset = CollegeDatabase.objects.all()
+    serializer_class = None
+
+    def list(self, request, *args, **kwargs):
+
+        # Assuming both models have an 'email' field
+        user_emails = UserAccount.objects.all().values_list('email', flat=True)
+        college_emails = RegisterCollege.objects.all().values_list('email', flat=True)
+
+        # Combine the email lists using the union operator
+        emails = user_emails.union(college_emails)
+
+        # If you want to convert the result to a list, you can use the list() function
+        email_list = list(emails)
+        
+        response_data = {'emails': email_list}  
+
+        return Response(response_data,status=status.HTTP_200_OK)

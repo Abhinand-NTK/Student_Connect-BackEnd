@@ -36,6 +36,7 @@ urlpatterns = [
     path('api/staffuser/', include('staffuser.urls')),
     path('api/studentuser/', include('studentuser.urls')),
     path('api/blogpost/', include('blog.urls')),
+    path('api/messages/', include('chat_messages.urls')),
     path('api/token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
