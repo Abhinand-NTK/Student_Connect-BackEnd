@@ -112,14 +112,26 @@ ASGI_APPLICATION = 'studentconnect.routing.application'
 # ASGI_APPLICATION = 'studentconnect.routing.application'
 
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'studentconnect',
+#         'USER': config('DATABASE_USER'),
+#         'PASSWORD': config('DATABASE_PASSWORD'),
+#         'HOST': 'localhost',
+#         'PORT': '5432',
+#     }
+# }
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'studentconnect',
-        'USER': config('DATABASE_USER'),
-        'PASSWORD': config('DATABASE_PASSWORD'),
+        'NAME': 'myproject',
+        'USER': 'myprojectuser',
+        'PASSWORD': 'password',
         'HOST': 'localhost',
-        'PORT': '5432',
+        'PORT': '',
     }
 }
 
@@ -250,14 +262,6 @@ STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY')
 SITE_URL = 'http://localhost:3000/'
 
 
-# CELERY SETTINGS
-
-# CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
-# CELERY_ACCEPT_CONTENT = ['application/json']
-# CELERY_RESULT_SERIALIZER = 'json'
-# CELERY_TASK_SERIALIZER = 'json'
-# CELERY_RESULT_BACKEND = 'django-db'
-# CELERY_TIMEZONE = 'Asia/Karachi'
 
 # Celery Configuration
 CELERY_BROKER_URL = "redis://localhost:6379"
@@ -265,14 +269,6 @@ CELERY_RESULT_BACKEND = "redis://localhost:6379"
 
 
 # Setting for manage the async calls for the message and the likes for the blogs
-
-
-# CHANNEL_LAYERS = {
-#     'default': {
-#         'BACKEND': 'channels.layers.InMemoryChannelLayer',
-#         'CONFIG': {},
-#     },
-# }
 
 
 CHANNEL_LAYERS = {
