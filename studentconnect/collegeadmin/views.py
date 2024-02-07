@@ -63,6 +63,32 @@ class CrudCourseView(viewsets.ModelViewSet):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+class BlockCourse(viewsets.ModelViewSet):
+    """
+    Class view for block the course
+    """
+
+    queryset = Department.objects.all()
+    permission_classes =[IsAuthenticated]
+    serializer_class = DepartmentSerializer
+
+    def create(self, request, *args, **kwargs):
+        """
+        Function for block the user
+        """
+        id  = request.data.get('id')
+
+        department = Department.objects.get(id=id)
+        # subjects = Subject.objects.filter(course=department)
+        
+        for i in Subject.objects.filter(course=department):
+            i.active = not i.active
+            i.save()
+        department.active = not department.active
+        department.save()
+
+        return Response(status=status.HTTP_200_OK)
+
 
 class CrudStaffView(viewsets.ModelViewSet):
     """

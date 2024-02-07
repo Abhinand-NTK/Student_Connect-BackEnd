@@ -36,7 +36,7 @@ class ListViewSerilzer(serializers.ModelSerializer):
         """
         model = Department
         fields = ['id',
-            'coursename',]
+            'coursename','active']
         
 
 
@@ -71,7 +71,7 @@ class SubjectDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Subject
-        fields = ['id', 'name', 'staff','semseter','staff_name', 'course', 'course_name', 'updated_at', 'created_at']
+        fields = ['id','active','name', 'staff','semseter','staff_name', 'course', 'course_name', 'updated_at', 'created_at']
 
 class CrudSessionSerilzer(serializers.ModelSerializer):
     """

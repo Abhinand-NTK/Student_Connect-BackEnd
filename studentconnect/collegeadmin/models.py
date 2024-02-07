@@ -39,6 +39,7 @@ class Department(models.Model):
     college_name = models.ForeignKey(RegisterCollege,on_delete=models.CASCADE,null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    active = models.BooleanField(default=False,null=True)
 
     def __str__(self):  
         
@@ -67,6 +68,7 @@ class Subject(models.Model):
     course = models.ForeignKey(Department, on_delete=models.CASCADE)
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    active = models.BooleanField(default=True,null=True)
 
     def __str__(self):
         return self.name

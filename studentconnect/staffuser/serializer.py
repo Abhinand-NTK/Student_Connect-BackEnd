@@ -36,7 +36,7 @@ class ClassRoomSerializerWithAllData(ModelSerializer):
     class Meta:
         model = ClassRoom
         fields = ['id', 'name', 'students',
-                  'subjects', 'departments', 'staffs_data']
+                  'subjects', 'departments', 'staffs_data','semester','active']
 
 
 class StaffUserProfileSerilizer(ModelSerializer):

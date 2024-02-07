@@ -16,6 +16,7 @@ staffuser.register(r'classroomsforteachers', views.GetViewForClassRoomForTeacher
 staffuser.register(r'classroomattendence', views.AttendenceForStudents, basename='classroomattendence')
 staffuser.register(r'getclassroomattendence', views.AttendenceForStudents, basename='getclassroomattendence')
 staffuser.register(r'createmodulesforclassrooms', views.CrudForModules, basename='createmodulesforclassrooms')
+staffuser.register(r'blockclassroom', views.BlcokClass, basename='blockclassroom')
 
 
 urlpatterns = [
