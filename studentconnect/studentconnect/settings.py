@@ -34,6 +34,8 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
+    "channels",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -54,7 +56,6 @@ INSTALLED_APPS = [
     "django_celery_results",
     "blog",
     # For real time connection
-    "channels",
     # "django_rq",
 ]
 
@@ -103,37 +104,37 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'studentconnect.wsgi.application'
+# WSGI_APPLICATION = 'studentconnect.wsgi.application'
 
-ASGI_APPLICATION = 'studentconnect.routing.application'
+ASGI_APPLICATION = 'studentconnect.asgi.application'
 
 # myproject/settings.py
 
 # ASGI_APPLICATION = 'studentconnect.routing.application'
 
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'studentconnect',
-#         'USER': config('DATABASE_USER'),
-#         'PASSWORD': config('DATABASE_PASSWORD'),
-#         'HOST': 'localhost',
-#         'PORT': '5432',
-#     }
-# }
-
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'myproject',
-        'USER': 'myprojectuser',
-        'PASSWORD': 'password',
+        'NAME': 'studentconnect',
+        'USER': config('DATABASE_USER'),
+        'PASSWORD': config('DATABASE_PASSWORD'),
         'HOST': 'localhost',
-        'PORT': '',
+        'PORT': '5432',
     }
 }
+
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'myproject',
+#         'USER': 'myprojectuser',
+#         'PASSWORD': 'password',
+#         'HOST': 'localhost',
+#         'PORT': '',
+#     }
+# }
 
 
 # Password validation

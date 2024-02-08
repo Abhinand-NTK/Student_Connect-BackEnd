@@ -38,30 +38,14 @@ class UserManager(BaseUserManager):
     #     return user
     
 
-    def create_superuser(self, first_name, last_name,email,password=None):
-        """
-        Creates and saves a superuser with the given email, date of
-        birth and password.
-        """
-        user = self.create_user(
-            first_name,
-            last_name,
-            email=email,
-            password=password,
-        )
-        user.is_staff = True
-        user.is_superuser = True
-        user.save(using=self._db)
-        return user
-    
-    # def create_superuser(self,email,password=None):
+    # def create_superuser(self, first_name, last_name,email,password=None):
     #     """
     #     Creates and saves a superuser with the given email, date of
     #     birth and password.
     #     """
     #     user = self.create_user(
-    #         # first_name,
-    #         # last_name,
+    #         first_name,
+    #         last_name,
     #         email=email,
     #         password=password,
     #     )
@@ -69,6 +53,22 @@ class UserManager(BaseUserManager):
     #     user.is_superuser = True
     #     user.save(using=self._db)
     #     return user
+    
+    def create_superuser(self,email,password=None):
+        """
+        Creates and saves a superuser with the given email, date of
+        birth and password.
+        """
+        user = self.create_user(
+            # first_name,
+            # last_name,
+            email=email,
+            password=password,
+        )
+        user.is_staff = True
+        user.is_superuser = True
+        user.save(using=self._db)
+        return user
     
 class UserAccount(AbstractBaseUser):
         """
