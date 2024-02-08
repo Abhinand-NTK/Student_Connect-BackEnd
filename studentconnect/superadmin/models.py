@@ -6,20 +6,32 @@ class UserManager(BaseUserManager):
     """
     Manager For creating the user and the superuser
     """
-    def create_user(self,first_name,last_name,email,password=None):
+    # def create_user(self,first_name,last_name,email,password=None):
 
+    #     if not email:
+    #         raise ValueError("Users must have an email address")
+
+    #     email = self.normalize_email(email)
+    #     email = email.lower()
+
+    #     user = self.model(
+    #         first_name = first_name,
+    #         last_name=last_name,
+    #         email = email,
+
+    #     )
+
+    def create_user(self, email, password=None, **extra_fields):
         if not email:
             raise ValueError("Users must have an email address")
-
+        
         email = self.normalize_email(email)
-        email = email.lower()
-
+        
         user = self.model(
-            first_name = first_name,
-            last_name=last_name,
-            email = email,
-
+            email=email,
+            **extra_fields
         )
+        
 
         user.set_password(password)
         user.save(using=self._db)
