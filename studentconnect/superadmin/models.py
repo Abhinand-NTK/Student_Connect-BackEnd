@@ -88,7 +88,7 @@ class UserAccount(AbstractBaseUser):
         created_at = models.DateTimeField(auto_now_add=True,blank=True,null=True)
         updated_at = models.DateTimeField(auto_now=True,blank=True,null=True)
         user_type = models.CharField(default=1, choices=USER_TYPE, max_length=1,blank=True,null=True)
-        otp = models.CharField(null=True,blank=True)
+        otp = models.CharField(max_length=20,null=True,blank=True)
         objects = UserManager()
 
         USERNAME_FIELD = 'email'

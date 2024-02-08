@@ -107,7 +107,7 @@ class Student(models.Model):
     student = models.OneToOneField(CollegeDatabase,on_delete=models.CASCADE,null=True)
     course = models.ForeignKey(Department,on_delete=models.CASCADE,null=True)
     session = models.ForeignKey(Session,on_delete=models.CASCADE,null=True)
-    semester = models.CharField(null=True,blank=True)
+    semester = models.CharField(max_length=30,null=True,blank=True)
     def __str__(self):
         return f"{self.student.first_name} {self.student.last_name}"
 
@@ -120,7 +120,7 @@ class RequestForLeave(models.Model):
     reasonforleave = models.CharField(max_length=300,null=True)
     from_date = models.DateField(null=True)
     to_date = models.DateField(null=True)
-    leavetype = models.CharField(null=True)
+    leavetype = models.CharField(max_length=200,null=True)
     approval_status = models.BooleanField(null=True,default=False)
 
     def __str__(self) -> str:
