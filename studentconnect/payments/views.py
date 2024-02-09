@@ -51,7 +51,7 @@ class StripeCheckoutView(viewsets.ModelViewSet):
                 mode='subscription',  # make it as the payment if the subscription is not working properly
                 currency="inr",
                 # success_url='http://localhost:8080/admin/landing/',
-                success_url='http://https://student-connect-front-end.vercel.app/admin/landing/',
+                success_url='https://student-connect-front-end.vercel.app/admin/landing/',
                 cancel_url=f'{settings.SITE_URL}/status' + '?canceled=true',
                 customer=customer.id
             )
