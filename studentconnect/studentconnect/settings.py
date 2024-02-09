@@ -104,7 +104,7 @@ TEMPLATES = [
     },
 ]
 
-# WSGI_APPLICATION = 'studentconnect.wsgi.application'
+WSGI_APPLICATION = 'studentconnect.wsgi.application'
 
 ASGI_APPLICATION = 'studentconnect.asgi.application'
 
