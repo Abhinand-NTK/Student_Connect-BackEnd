@@ -51,7 +51,7 @@ class Staff(models.Model):
     """
     user_id = models.ForeignKey(UserAccount,on_delete=models.CASCADE,null=True)
     staff = models.OneToOneField(CollegeDatabase,on_delete=models.CASCADE)
-    is_hod = models.BooleanField(null=True,blank=True,default=False)
+    is_hod = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.staff.first_name} {self.staff.last_name}"
@@ -107,7 +107,8 @@ class Student(models.Model):
     student = models.OneToOneField(CollegeDatabase,on_delete=models.CASCADE,null=True)
     course = models.ForeignKey(Department,on_delete=models.CASCADE,null=True)
     session = models.ForeignKey(Session,on_delete=models.CASCADE,null=True)
-    semester = models.CharField(max_length=30,null=True,blank=True)
+    semester = models.CharField(blank=True, null=True, max_length=30)
+
     def __str__(self):
         return f"{self.student.first_name} {self.student.last_name}"
 

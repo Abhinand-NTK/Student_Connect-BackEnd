@@ -18,6 +18,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='student',
             name='semester',
-            field=models.CharField(blank=True, null=True),
+            field=models.CharField(blank=True, null=True, max_length=30),
         ),
     ]

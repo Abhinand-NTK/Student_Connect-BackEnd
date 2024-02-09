@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='requestforleave',
             name='leavetype',
-            field=models.CharField(null=True),
+            field=models.CharField(null=True, max_length=100),
         ),
     ]

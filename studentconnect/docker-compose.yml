@@ -1,0 +1,41 @@
+version: "3.8"
+
+services:
+  postgres_student:
+    image: postgres:latest
+    container_name: postgres_student_container
+    environment:
+      POSTGRES_DB: student_db
+      POSTGRES_USER: student_user
+      POSTGRES_PASSWORD: student_user123
+    volumes:
+      - postgres_student_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
+  backend_student:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: backend:student-backend
+    container_name: student-backend
+    # command: sh -c "chmod +x ./migrate.sh && chmod +x ./entrypoint.sh && sh ./migrate.sh && ./entrypoint.sh"
+    ports:
+      - 8000:8000
+    env_file:
+      - ./.env
+    volumes:
+      - .:/student-backend
+    depends_on:
+      - postgres_student
+      - redis
+
+volumes:
+  postgres_student_data:
+  redis_data:

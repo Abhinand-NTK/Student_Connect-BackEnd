@@ -113,6 +113,8 @@ ASGI_APPLICATION = 'studentconnect.asgi.application'
 # ASGI_APPLICATION = 'studentconnect.routing.application'
 
 
+## local server configrations
+
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
@@ -124,6 +126,21 @@ ASGI_APPLICATION = 'studentconnect.asgi.application'
 #     }
 # }
 
+
+## docker configrations
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'student_db',
+#         'USER': config('DATABASE_USER'),
+#         'PASSWORD': config('DATABASE_PASSWORD'),
+#         'HOST': 'postgres_student',
+#         'PORT': '5432',
+#     }
+# }
+
+## nginx configurations
 
 DATABASES = {
     'default': {
@@ -265,8 +282,10 @@ SITE_URL = 'http://localhost:3000/'
 
 
 # Celery Configuration
-CELERY_BROKER_URL = "redis://localhost:6379"
-CELERY_RESULT_BACKEND = "redis://localhost:6379"
+# CELERY_BROKER_URL = "redis://localhost:6379"
+# CELERY_RESULT_BACKEND = "redis://localhost:6379"
+CELERY_BROKER_URL = "redis://redis:6379"
+CELERY_RESULT_BACKEND = "redis://redis:6379"
 
 
 # Setting for manage the async calls for the message and the likes for the blogs
@@ -278,6 +297,7 @@ CHANNEL_LAYERS = {
         'CONFIG': {
             # Use the Redis server's address here
             "hosts": [('127.0.0.1', 6379)],
+            # "hosts": [('redis', 6379)],
         },
     },
 }
