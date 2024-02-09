@@ -398,7 +398,8 @@ class CreatingUsersView(viewsets.ModelViewSet):
             user_details.save()
 
             # Sending the confirmation mail while creating the account by super admin
-            login_link = 'http://localhost:5173/signin'  # Change as needed
+            # login_link = 'http://localhost:5173/signin'  # Change as needed
+            login_link = 'https://student-connect-front-end.vercel.app/signin'  # Change as needed
             subject = 'College Registration Request Received'
             template_path = 'StaffAccountCreateSuccessMail.html'  # Adjust the template path
             context = {
@@ -438,7 +439,8 @@ class CreatingUsersView(viewsets.ModelViewSet):
             user_details.save()
 
             # Sending the confirmation mail while creating the account by super admin
-            login_link = 'http://localhost:5173/signin'  # Change as needed
+            # login_link = 'http://localhost:5173/signin'  # Change as needed
+            login_link = 'https://student-connect-front-end.vercel.app/signin'  # Change as needed
             subject = 'College Registration Request Received'
             template_path = 'StudentAccountCreateSuccessMail.html'  # Adjust the template path
             context = {
